@@ -11,7 +11,7 @@ export type SocialInboxTarget=z.infer<typeof target>;
 // These are candidate requirements for the existing Facebook Login path, not a
 // proof of live App Review, Page tasks, scoped grants or provider acceptance.
 export function socialInboxMetaRequirements(platform:'facebook'|'instagram',kind:'direct'|'comment'){
- if(kind==='direct')return platform==='instagram'?['instagram_basic','instagram_manage_messages','pages_manage_metadata']:['pages_messaging','pages_manage_metadata','pages_read_engagement'];
+ if(kind==='direct')return platform==='instagram'?['instagram_basic','instagram_manage_messages','pages_messaging','pages_manage_metadata']:['pages_messaging','pages_manage_metadata','pages_read_engagement'];
  return platform==='instagram'?['instagram_basic','instagram_manage_comments','pages_read_engagement']:['pages_read_engagement','pages_read_user_content'];
 }
 export function socialInboxCapability(platform:'facebook'|'instagram',kind:'direct'|'comment',scopes:readonly string[]){

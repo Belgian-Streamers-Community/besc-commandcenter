@@ -42,3 +42,17 @@
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
+
+.inbox-controls { margin: 24px; padding: 24px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: var(--theme-field); }
+.inbox-controls form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 16px 0; }
+.inbox-controls label { display: grid; gap: 8px; max-width: 100%; }
+.inbox-controls button, .inbox-controls select { font: inherit; color: var(--ink); background: var(--theme-control); border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-width: 100%; }
+.inbox-controls a { display: inline-block; margin: 4px 12px 4px 0; }
+.inbox-controls :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.inbox-controls [role="alert"] { color: var(--theme-danger); }
+.inbox-controls p, .inbox-controls li { overflow-wrap: anywhere; }
+@media(max-width:640px) { .inbox-controls { margin: 12px; padding: 16px; } .inbox-controls form { align-items: stretch; flex-direction: column; } }
+
+.inbox-controls label { width: min(440px, 100%); min-width: 0; }
+.inbox-controls form, .inbox-controls select { min-width: 0; }
+.inbox-controls select { width: 100%; }

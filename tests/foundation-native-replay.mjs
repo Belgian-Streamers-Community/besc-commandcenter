@@ -76,6 +76,7 @@ for (const name of names) {
   if(name.endsWith('_social_inbox_local.sql'))assert.equal(JSON.parse(sql(readFileSync(new URL('../ops/foundation-effects-catalog.sql',import.meta.url),'utf8'))).tables.length,206,'Publication and historical schema preserved before three private social inbox tables');
   if(name.endsWith('_instagram_publication_local.sql'))assert.equal(JSON.parse(sql(readFileSync(new URL('../ops/foundation-effects-catalog.sql',import.meta.url),'utf8'))).tables.length,204,'Creator and historical schema preserved before two private Instagram publication tables');
   if(name.endsWith('_resumable_inbox_local.sql'))assert.equal(JSON.parse(sql(readFileSync(new URL('../ops/foundation-effects-catalog.sql',import.meta.url),'utf8'))).tables.length,209,'All historical tables preserved before resumable inbox');
+  if(name.endsWith('_social_inbox_controls_local.sql'))assert.equal(JSON.parse(sql(readFileSync(new URL('../ops/foundation-effects-catalog.sql',import.meta.url),'utf8'))).tables.length,212,'Inbox controls preserve all 212 tables');
   try { sql(readFileSync(new URL(`../supabase/migrations/${name}`, import.meta.url), "utf8")); }
   catch (error) { throw new Error(`Native replay failed at ${name}: ${error.stderr?.toString() ?? error.message}`); }
   if (name.startsWith("20260712190000_")) sql("insert into auth.users(id,email) values('00000000-0000-4000-8000-000000000001','fixture@example.invalid');update public.organization_members set role='admin',status='active';");

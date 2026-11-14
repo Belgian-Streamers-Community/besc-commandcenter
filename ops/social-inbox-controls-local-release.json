@@ -1,0 +1,45 @@
+{
+  "work_item": "social-inbox-packages9-10-local",
+  "base_commit": "eaff149c632d84720a39aee9bf398db20fc26a3f",
+  "runtime_default": "off",
+  "required_history_before_separate_apply": 156,
+  "expected_history_after_separate_apply": 157,
+  "migration": {
+    "file": "20261114174946_social_inbox_controls_local.sql",
+    "sha256_lf": "d4ad61d4cb0889ba7c91b2c068f80e2449db790cfbc7c077e1f503f9203b63d3"
+  },
+  "new_private_tables": 0,
+  "new_functions": 0,
+  "changed_private_functions": [
+    "rs_owner",
+    "rs_access"
+  ],
+  "runtime_factory_included": true,
+  "manual_page_size": 25,
+  "automatic_scheduler_added": false,
+  "oauth_scopes_changed": false,
+  "live_contract_verified": false,
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "activation_authorized": false,
+  "live_message_read_authorized": false,
+  "reply_authorized": false,
+  "moderation_authorized": false,
+  "superseded_files": [
+    {
+      "file": "src/lib/social-inbox.ts",
+      "before_sha256_lf": "abbbe62f64e43405617fe62bcb15c30708d41a908b6209904e4cceb8e0b836a3",
+      "sha256_lf": "5db1287d7a0b00f8807f901582e83029dac18e4bab667743aa575ca3594e5dd4"
+    },
+    {
+      "file": "src/app/app/social/inbox/page.tsx",
+      "before_sha256_lf": "865b766dbcba1bbdec4eeefddb79037f305337fe6ee94a0f4af0da9ca3a1e18a",
+      "sha256_lf": "1cd708596ce1e99ae15851ad1dbbc3ccc0b4cca65c6776352cba1f3182614875"
+    },
+    {
+      "file": "src/app/app/social/inbox/actions.ts",
+      "before_sha256_lf": "9e20021d00ff899447097fe80c7da406774dfedd63c5c32fee37ae3a9b59520c",
+      "sha256_lf": "d467e4e3d1cb9d4146618a2787e4fa9cff1ad51b14bb21141be4f333ad1c9b4c"
+    }
+  ]
+}

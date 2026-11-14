@@ -14,7 +14,7 @@ async function fixture(){
  const account=randomUUID(),external=String(++serial),target={organization_id:org,account_id:account,platform:'instagram',external_account_id:external,page_id:'456',kind:'direct',resources:[]};
  const start={v:1,api_version:'v25.0',queue:[task('conversations','456')],seen:['conversations:456:456']};
  const messageTask={...task('messages','thread1'),participants:[external,'77']},checkpoint={...start,queue:[messageTask],seen:[...start.seen,'messages:thread1:thread1']};
- await as(a,()=>a.query("insert into public.social_accounts(id,organization_id,platform,account_name,external_account_id,status,granted_scopes,created_by)values($1,$2,'instagram','TESTFIXTURE - NIET PUBLICEREN',$3,'connected',array['instagram_basic','instagram_manage_messages','pages_manage_metadata'],$4)",[account,org,external,user]),'authenticated');
+ await as(a,()=>a.query("insert into public.social_accounts(id,organization_id,platform,account_name,external_account_id,status,granted_scopes,created_by)values($1,$2,'instagram','TESTFIXTURE - NIET PUBLICEREN',$3,'connected',array['instagram_basic','instagram_manage_messages','pages_messaging','pages_manage_metadata'],$4)",[account,org,external,user]),'authenticated');
  const job=await as(a,()=>owner(a,null,'create',{target,checkpoint:start,request_id:randomUUID()}),'authenticated');
  const first=await as(a,()=>rpc(a,job.id,'claim'));await as(a,()=>rpc(a,job.id,'commit',{nonce:first.nonce,revision:first.revision,messages:[],next:checkpoint,done:false,skipped:0}));
  return{id:job.id,account,checkpoint};
