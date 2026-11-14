@@ -40,26 +40,31 @@ async function server(job:string,action:string,data:Record<string,unknown>={}){
  catch(error){await f.db.exec('rollback to savepoint rpc;release savepoint rpc');throw error;}
 }
 async function denied(sql:string,pattern=/instagram|row-level security|permission denied/i){await f.db.exec('savepoint denied');try{await assert.rejects(f.db.exec(sql),pattern);}finally{await f.db.exec('rollback to denied;release savepoint denied');}}
-type Mode='success'|'publish_timeout'|'create_timeout'|'receipt_mismatch'|'pending'|'quota'|'missing_scopes'|'wrong_app'|'malformed_quota'|'expired';
+type Mode='success'|'publish_timeout'|'create_timeout'|'receipt_mismatch'|'pending'|'quota'|'missing_scopes'|'wrong_app'|'malformed_quota'|'expired'
+ |'invalid_token'|'wrong_account'|'insights_only'|'second_quota'|'status_error'|'already_published'|'malformed_create'|'malformed_publish'|'receipt_http_error'|'receipt_bad_link'|'receipt_oversize';
 function flow(mode:Mode='success'){
- const requests:{path:string;method:string}[]=[],posts:string[]=[];let waits=0;
+ const requests:{path:string;method:string}[]=[],posts:string[]=[];let waits=0,quotaChecks=0;
  const request:typeof fetch=async(raw,init)=>{
   const u=new URL(String(raw)),method=init?.method??'GET',path=u.pathname.split('/').at(-1)!;requests.push({path,method});if(method==='POST')posts.push(path);
   assert.equal(u.hostname,'graph.facebook.com');assert.equal(init?.redirect,'error');assert.ok(init?.signal);
   const reply=(body:unknown)=>Response.json(body);
-  if(path==='debug_token')return reply({data:{is_valid:true,app_id:mode==='wrong_app'?'wrong':'fixture-app',type:'PAGE',scopes:mode==='missing_scopes'?[]:[...instagramPublicationScopes]}});
+  if(path==='debug_token')return reply({data:{is_valid:mode!=='invalid_token',app_id:mode==='wrong_app'?'wrong':'fixture-app',type:'PAGE',scopes:mode==='missing_scopes'?[]:mode==='insights_only'?['instagram_basic','instagram_manage_insights','pages_read_engagement']:[...instagramPublicationScopes]}});
   assert.equal(new Headers(init?.headers).get('authorization'),'Bearer fixture-token');
-  if(path==='123')return reply({id:'123'});
-  if(path==='content_publishing_limit')return reply(mode==='malformed_quota'?{data:[]}:{data:[{quota_usage:mode==='quota'?2:0,config:{quota_total:2,quota_duration:86400}}]});
+  if(path==='123')return reply({id:mode==='wrong_account'?'999':'123'});
+  if(path==='content_publishing_limit'){quotaChecks++;return reply(mode==='malformed_quota'?{data:[]}:{data:[{quota_usage:mode==='quota'||mode==='second_quota'&&quotaChecks===2?2:0,config:{quota_total:2,quota_duration:86400}}]});}
   if(path==='media'){
    assert.equal(method,'POST');const body=init?.body as URLSearchParams;assert.equal(body.get('image_url'),url);assert.equal(body.get('caption'),'Fictief bijschrift');assert.equal(body.get('access_token'),null);
-   if(mode==='create_timeout')throw Error('fixture-token lost response');return reply({id:'456'});
+   if(mode==='create_timeout')throw Error('fixture-token lost response');return reply(mode==='malformed_create'?{id:'not-an-id'}:{id:'456'});
   }
-  if(path==='456')return reply({status_code:mode==='pending'?'IN_PROGRESS':mode==='expired'?'EXPIRED':'FINISHED'});
+  if(path==='456')return reply({status_code:mode==='pending'?'IN_PROGRESS':mode==='expired'?'EXPIRED':mode==='status_error'?'ERROR':mode==='already_published'?'PUBLISHED':'FINISHED'});
   if(path==='media_publish'){
-   assert.equal((init?.body as URLSearchParams).get('creation_id'),'456');if(mode==='publish_timeout')throw Error('fixture-token response lost after publish');return reply({id:'789'});
+   assert.equal((init?.body as URLSearchParams).get('creation_id'),'456');if(mode==='publish_timeout')throw Error('fixture-token response lost after publish');return reply(mode==='malformed_publish'?{id:'not-an-id'}:{id:'789'});
   }
-  if(path==='789')return reply({id:'789',owner:{id:mode==='receipt_mismatch'?'999':'123'},permalink:'https://www.instagram.com/p/FIXTURE/'});
+  if(path==='789'){
+   if(mode==='receipt_http_error')return new Response('fixture-token private provider error',{status:429});
+   if(mode==='receipt_oversize')return reply({padding:'x'.repeat(262145)});
+   return reply({id:'789',owner:{id:mode==='receipt_mismatch'?'999':'123'},permalink:mode==='receipt_bad_link'?'https://evil.invalid/p/FIXTURE/':'https://www.instagram.com/p/FIXTURE/'});
+  }
   throw Error('Unexpected outbound request');
  };
   const ports:InstagramPublicationPorts={server,credentials:async()=> 'fixture-token',verifyImage:job=>verifyInstagramImage(job,origin,async()=>new Response(new Uint8Array(image).buffer,{headers:{'Content-Type':'image/jpeg'}})),
@@ -91,6 +96,65 @@ test('Instagram: toekomstige planning doet nog geen providerverzoek',async()=>{
 });
 for(const mode of ['quota','missing_scopes','wrong_app','malformed_quota'] as const)test(`Instagram: ${mode} blokkeert vóór iedere muterende provideroproep`,async()=>{
  const job=await queue(),f1=flow(mode);assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'failed');assert.deepEqual(f1.posts,[]);
+});
+
+for(const mode of ['invalid_token','wrong_account','insights_only'] as const)test(`Instagram pakket 12: ${mode} geeft geen publicatiebevoegdheid`,async()=>{
+ const job=await queue(),f1=flow(mode);assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'failed');assert.deepEqual(f1.posts,[]);
+ await actor();const history=await owner('list') as unknown as {state:string;events:{operation:string}[]}[];
+ assert.equal(history[0].state,'failed');assert.deepEqual(history[0].events.map(e=>e.operation),['queued','claimed','preflight_failed']);
+});
+
+for(const mode of ['second_quota','status_error','already_published','malformed_create','malformed_publish','receipt_http_error','receipt_bad_link','receipt_oversize'] as const)test(`Instagram pakket 12: ${mode} blijft onzeker en wordt niet opnieuw verstuurd`,async()=>{
+ const job=await queue(),f1=flow(mode),afterPublish=['malformed_publish','receipt_http_error','receipt_bad_link','receipt_oversize'].includes(mode);
+ assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'uncertain');
+ assert.deepEqual(f1.posts,afterPublish?['media','media_publish']:['media']);
+ const requests=f1.requests.length;assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'skipped');assert.equal(f1.requests.length,requests);
+ await actor();const history=await owner('list') as unknown as {state:string;permalink:string|null;events:{operation:string}[]}[];
+ assert.equal(history[0].state,'uncertain');assert.equal(history[0].permalink,null);assert.equal(history[0].events.at(-1)?.operation,'uncertain');
+});
+
+test('Instagram pakket 12: onbruikbaar beeld stopt vóór credential- en providercontact',async()=>{
+ const job=await queue(),f1=flow();let credentialReads=0;
+ f1.ports.verifyImage=async()=>{throw Error('fixture image changed');};f1.ports.credentials=async()=>{credentialReads++;return 'fixture-token';};
+ assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'failed');assert.equal(credentialReads,0);assert.deepEqual(f1.requests,[]);
+});
+
+test('Instagram pakket 12: ontbrekende credential stopt vóór providercontact',async()=>{
+ const job=await queue(),f1=flow();f1.ports.credentials=async()=>'';
+ assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'failed');assert.deepEqual(f1.requests,[]);
+});
+
+for(const action of ['created','dispatch_publish'] as const)test(`Instagram pakket 12: verloren ${action}-bevestiging geeft geen volgend publicatieverzoek`,async()=>{
+ const job=await queue(),f1=flow(),port=f1.ports.server;
+ f1.ports.server=async(id,operation,data)=>{const saved=await port(id,operation,data);if(operation===action)throw Error('Lost local acknowledgement');return saved;};
+ assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'uncertain');assert.deepEqual(f1.posts,['media']);
+ assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'skipped');assert.deepEqual(f1.posts,['media']);
+});
+
+for(const stage of ['preparing','container_ready','publishing'] as const)test(`Instagram pakket 12: herstart met ${stage} claimt of publiceert niet opnieuw`,async()=>{
+ const job=await queue(),claim=await server(job,'claim') as {nonce:string};
+ if(stage!=='preparing')await server(job,'created',{nonce:claim.nonce,container_id:'456'});
+ if(stage==='publishing')await server(job,'dispatch_publish',{nonce:claim.nonce});
+ const restarted=flow();assert.equal((await runInstagramPublication(job,restarted.ports,true)).state,'skipped');assert.deepEqual(restarted.requests,[]);
+ await actor();const history=await owner('list') as unknown as {state:string}[];assert.equal(history[0].state,stage);
+ await denied(`update public.social_posts set copy='Changed after interruption' where id=${q(post)}`,/inflight/);
+});
+
+for(const change of ["copy='Changed after approval'","scheduled_at=scheduled_at+interval '1 hour'"] as const)test(`Instagram pakket 12: gewijzigde bron ${change} blokkeert de goedgekeurde job`,async()=>{
+ const job=await queue();await f.db.exec(`update public.social_posts set ${change} where id=${q(post)}`);
+ const f1=flow();assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'blocked');assert.deepEqual(f1.requests,[]);
+});
+
+for(const length of [2200,2201])test(`Instagram pakket 12: bijschrift met ${length} Unicode-codepunten wordt op de juiste grens gecontroleerd`,async()=>{
+ await f.db.exec(`update public.social_posts set copy=${q('😀'.repeat(length))} where id=${q(post)}`);await approve();
+ if(length===2200)assert.ok((await owner('queue')).id);
+ else await denied(`select public.instagram_publication_owner(${q(f.ids.org)},${q(post)},'queue')`,/caption_invalid/);
+});
+
+test('Instagram pakket 12: eigen beoordeling wordt geweigerd en levert geen vrijgave op',async()=>{
+ const approval=randomUUID();await f.db.exec(`insert into public.approval_requests(id,organization_id,entity_type,entity_id,title,module,source_href,requested_by)values(${q(approval)},${q(f.ids.org)},'social',${q(post)},'ignored','social','/ignored',${q(f.ids.admin)})`);
+ await denied(`update public.approval_requests set status='approved',decided_by=${q(f.ids.admin)} where id=${q(approval)}`,/self|own|zelf|approval|review|approv/i);
+ await denied(`select public.instagram_publication_owner(${q(f.ids.org)},${q(post)},'queue')`);
 });
 for(const mode of ['create_timeout','publish_timeout','receipt_mismatch','expired','pending'] as const)test(`Instagram: ${mode} blijft onzeker zonder tweede publicatiepoging`,async()=>{
  const job=await queue(),f1=flow(mode);assert.equal((await runInstagramPublication(job,f1.ports,true)).state,'uncertain');const count=f1.posts.length;
