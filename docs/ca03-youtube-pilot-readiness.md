@@ -1,5 +1,7 @@
 # CA03 — pakket 3: voorbereiding van één live creatorproef
 
+Actueel vervolg: [pakket 11 — inrichting en beperkte proef](ca03-youtube-package11-preparation.md), gecontroleerd op 14 november 2026. De versie-, uitrol- en inrichtingsstatus hieronder beschrijft de historische voorbereiding van 8 november.
+
 Pakketten 1 en 2 zijn samengevoegd en op 8 november 2026 uitgerold naar Command Center DEV, versie `5e67494`. Cloud DEV heeft de twee bijbehorende migraties (153 geregistreerd). Dat is de beginsituatie; het betekent niet dat de creatorfunctie al actief is. De bestaande organisatiekanalen blijven buiten deze proef.
 
 ## Gekozen kandidaat en gecontroleerde beginsituatie
