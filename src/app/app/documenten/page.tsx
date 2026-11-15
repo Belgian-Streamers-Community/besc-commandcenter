@@ -1,3 +1,4 @@
+import {DriveBrowserSection} from "@/components/drive-browser-section";
 import {DocumentRegistryPanel} from "@/components/document-registry-panel";
 import "./documents.css";
 import Link from "next/link";
@@ -237,7 +238,7 @@ export default async function DocumentsPage({
         <div><p>GOOGLE WORKSPACE</p><h1>Documentregister</h1></div>
         <a className="primary" href="https://drive.google.com/drive/shared-drives" target="_blank" rel="noreferrer"><Cloud size={16}/>Open Google Drive</a>
       </header>
-      <div className="module-body documents-page"><DocumentRegistryPanel searchParams={Promise.resolve(query)}/>
+      <div className="module-body documents-page">{canManage && hasPermission(membership, "manageFinance") && membership.organization_id === process.env.BESC_DRIVE_BROWSER_ORGANIZATION_ID && <DriveBrowserSection/>}<DocumentRegistryPanel searchParams={Promise.resolve(query)}/>
         <div className="documents-section-heading"><div><p className="eyebrow">DOSSIERDOCUMENTEN</p><h2>Generatie en goedkeuring</h2></div></div>
         <p className="lead">Volg notulen, eventdossiers en sponsorrapporten op. Open een bestaand document, vraag goedkeuring aan of ga naar de fiche om een ontbrekend document te genereren.</p>
         {query.succes === "goedkeuring-aangevraagd" && <div className="success">Het document is ter goedkeuring voorgelegd.</div>}

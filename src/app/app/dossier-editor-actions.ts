@@ -1,4 +1,5 @@
 "use server";
+import {safeDossierLink} from "@/lib/dossier-link-types";
 import {revalidatePath} from "next/cache";
 import {requireActiveMembership} from "@/lib/auth-context";
 import {validateEditorIssues,type EditorBundle} from "@/lib/dossier-editor-draft";
@@ -11,6 +12,10 @@ import {syncLinkedMeeting} from "@/lib/linked-calendar-sync";
 
 export async function saveDossierEditor(bundle:EditorBundle){
  if(!bundle||typeof bundle!=="object"||!bundle.root||!Array.isArray(bundle.parts)||JSON.stringify(bundle).length>800000)return {ok:false,message:"De dossierwijziging is ongeldig of te groot."};
+ for(const part of bundle.parts)if(part.collection==="record_links"&&!part.delete){
+  if(typeof part.values.url==="string"&&!safeDossierLink(part.values.url))return {ok:false,message:"Gebruik een webadres zonder ingebouwde aanmeldgegevens."};
+  if(["image","folder","application"].includes(String(part.values.link_type))&&process.env.BESC_DOSSIER_LINKS_ENABLED!=="true")return {ok:false,message:"De extra linksoorten zijn nog niet ingeschakeld."};
+ }
  const cfg=dossierEditorCatalog[bundle.kind];if(!cfg)return {ok:false,message:"Onbekende fiche."};
  const issues=validateEditorIssues(bundle);if(issues.length)return {ok:false,message:"Controleer de onderstaande velden. Er is niets opgeslagen.",issues};
  const {supabase,membership,user}=await requireActiveMembership();

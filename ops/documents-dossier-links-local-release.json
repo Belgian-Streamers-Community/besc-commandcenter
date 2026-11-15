@@ -1,0 +1,19 @@
+{
+  "work_item": "documents-dossier-links-packages16-17",
+  "migration": {
+    "file": "20261115102517_documents_dossier_links_local.sql",
+    "sha256_lf": "911eeebf20f5a2f2828b28704697e7f1e3ca555d739fd0cb58f2f386603ab8cf"
+  },
+  "new_private_tables": 0,
+  "runtime_default": "off",
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "activation_authorized": false,
+  "live_provider_authorized": false,
+  "drive_writes_included": false,
+  "oauth_scopes_changed": false,
+  "automatic_scheduler_added": false,
+  "historical_rows_backfilled": false,
+  "sync_mode": "explicit_read_only_pages_no_persistent_cache",
+  "new_functions": 1
+}

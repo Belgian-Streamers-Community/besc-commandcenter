@@ -177,7 +177,10 @@ test('F3 release: exact additive migration, historical SQL unchanged and live ga
   const crm=JSON.parse(readFileSync(new URL('ops/crm-communication-local-release.json',root),'utf8'));
   assert.equal(crm.new_private_tables,11);assert.equal(crm.runtime_default,'off');
   for(const key of ['cloud_apply_authorized','server_deploy_authorized','activation_authorized','live_provider_authorized','synchronization_authorized','send_authorized','oauth_scopes_changed','automatic_scheduler_added'])assert.equal(crm[key],false);
-  const files = [...beforeStep11,...step11.new_migrations,adminAccess.migration,operations.migration,socialAlerts.migration,socialReview.migration,deliverableHistory.migration,reviewHistory.migration,youtube.migration,youtubeClosure.migration,youtubeAccount.migration,instagram.migration,inbox.migration,resumable.migration,controls.migration,crm.migration];
+  const documents=JSON.parse(readFileSync(new URL('ops/documents-dossier-links-local-release.json',root),'utf8'));
+  assert.equal(documents.new_private_tables,0);assert.equal(documents.runtime_default,'off');
+  for(const key of ['cloud_apply_authorized','server_deploy_authorized','activation_authorized','live_provider_authorized','drive_writes_included','oauth_scopes_changed','automatic_scheduler_added','historical_rows_backfilled'])assert.equal(documents[key],false);
+  const files = [...beforeStep11,...step11.new_migrations,adminAccess.migration,operations.migration,socialAlerts.migration,socialReview.migration,deliverableHistory.migration,reviewHistory.migration,youtube.migration,youtubeClosure.migration,youtubeAccount.migration,instagram.migration,inbox.migration,resumable.migration,controls.migration,crm.migration,documents.migration];
   assert.deepEqual(readdirSync(new URL('supabase/migrations/', root)).filter(f => f.endsWith('.sql')).sort(), files.map(f => f.file).sort());
   for (const f of files) assert.equal(createHash('sha256').update(readFileSync(new URL('supabase/migrations/' + f.file, root), 'utf8').replaceAll('\r\n', '\n')).digest('hex'), f.sha256_lf, f.file);
   assert.deepEqual(manifest.excluded_history, ['20261001110000_seed_operational_guidelines.sql']);

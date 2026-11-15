@@ -150,7 +150,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -1011,7 +1014,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -2157,7 +2163,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -3059,7 +3068,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -3476,7 +3488,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -3959,7 +3974,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -4294,7 +4312,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -4588,7 +4609,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -4889,7 +4913,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -5936,7 +5963,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },
@@ -6156,7 +6186,10 @@
           "briefing",
           "document",
           "website",
-          "other"
+          "other",
+          "image",
+          "folder",
+          "application"
         ],
         "reference": null
       },

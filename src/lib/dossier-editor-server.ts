@@ -19,7 +19,7 @@ export async function loadDossierEditor(kind:string,id?:string,preset:EditorReco
  if(id){let query=supabase.from(cfg.table).select("*").eq("organization_id",membership.organization_id).eq("id",id);if(editorFields(kind,cfg.table).some(f=>f.name==="deleted_at"))query=query.is("deleted_at",null);
    const result=await query.maybeSingle();if(result.error)throw Error("De fiche kan niet worden geladen.");if(!result.data||result.data.deleted_at)notFound();record=result.data;
  }
- const permissions:Record<string,boolean>={},parts:Record<string,EditorRecord[]>={};
+ const permissions:Record<string,boolean>={extendedDossierLinks:process.env.BESC_DOSSIER_LINKS_ENABLED==="true"},parts:Record<string,EditorRecord[]>={};
  permissions.manageFinance=hasPermission(membership,"manageFinance");
  permissions.eventSponsors=membership.role==="admin"||membership.role==="board";
  await Promise.all(cfg.collections.map(async part=>{
