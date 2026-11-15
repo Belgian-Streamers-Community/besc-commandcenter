@@ -1,0 +1,75 @@
+{
+  "package": 23,
+  "prepared_on": "2026-11-15",
+  "base_commit": "b28813a2aa607126247595dd7b5279d8ea8b95ad",
+  "status": "local_inventory_and_readonly_plan_prepared",
+  "current_live_access_verified": false,
+  "live_trial_executed": false,
+  "write_trial_ready": false,
+  "connector_checks": {
+    "supabase": "connector_start_failed_before_source_read",
+    "google_drive": "connector_start_failed_before_source_read",
+    "monday": "connector_start_failed_before_source_read",
+    "attempts_per_connector": 2,
+    "source_system_outage_proven": false
+  },
+  "candidate": {
+    "id": "P23-R01",
+    "selection": "proposal_only",
+    "kind": "historical_source_and_existing_event_reconciliation",
+    "source_snapshot_date": "2026-10-03",
+    "source_url": "https://www.belgianstreamerscommunity.be/evenementen/eventkalender/2024/BESC-Lachaton",
+    "source_file": "evenementen_eventkalender_2024_BESC-Lachaton.txt",
+    "historical_source_facts": {
+      "title": "BESC Lach@ton tvv Bring-a-smile",
+      "start_date": "2024-11-01",
+      "start_time_as_printed": "20h",
+      "end_date": "2024-11-03",
+      "end_time_as_printed": "23h",
+      "timezone": null,
+      "historical_beneficiary": "Bring-a-smile"
+    },
+    "current_binding": {
+      "organization_id": null,
+      "event_id": null,
+      "project_id": null,
+      "related_crm_id": null,
+      "own_profile_id": null,
+      "own_account_name_to_verify": "missrinam80",
+      "event_status": null,
+      "priority": null,
+      "owner_id": null,
+      "role_besc": null
+    },
+    "approved_for_import": false,
+    "approved_for_publication": false
+  },
+  "max_read_scope": {
+    "existing_events": 1,
+    "own_profiles": 1,
+    "existing_related_organization_references": 1,
+    "financial_records": 0,
+    "other_people_profiles": 0,
+    "full_table_exports": 0
+  },
+  "stop_conditions": [
+    "connector or source unavailable",
+    "DEV organization, runtime/schema version or current identity unverified",
+    "required existing read access absent",
+    "zero or multiple matching genuine historical event dossiers",
+    "target is synthetic, example or demo data",
+    "timezone or source fact requires interpretation before any change",
+    "action requests save, sync, communication, grant, approval or any other mutation"
+  ],
+  "existing_event_save_can_update_linked_calendar": true,
+  "expected_created_records": 0,
+  "expected_updated_records": 0,
+  "expected_deleted_or_archived_records": 0,
+  "expected_requested_external_actions": 0,
+  "migrations": [],
+  "activated": false,
+  "deployed": false,
+  "credential_refresh_requested": false,
+  "real_import_performed": false,
+  "whole_package_accepted": false
+}
