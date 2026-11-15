@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "work_item": "package13-crm-gmail-contacts-design",
+  "status": "proposal_only",
+  "passive_handoff_only": true,
+  "runtime_consumes_this_file": false,
+  "design_is_implementation_approval": false,
+  "live_configuration_verified": false,
+  "live_changes_authorized": false,
+  "sync_authorized": false,
+  "send_authorized": false,
+  "organization_id": null,
+  "mailbox_connection_id": null,
+  "mailbox_oauth_owner": null,
+  "verified_sender_alias": null,
+  "contacts_connection_id": null,
+  "contacts_oauth_owner": null,
+  "communication_readers": [],
+  "reviewer_user_id": null,
+  "retention_until": null,
+  "proposed_contacts_first_phase": {
+    "mode": "read_compare_then_explicit_local_apply",
+    "source_type": "READ_SOURCE_TYPE_CONTACT",
+    "person_fields": ["metadata", "names", "emailAddresses", "phoneNumbers", "organizations"],
+    "automatic_apply": false,
+    "google_write": false,
+    "google_delete": false,
+    "automatic_merge": false,
+    "grant_account_access": false
+  },
+  "proposed_mail_first_phase": {
+    "automatic_send": false,
+    "scope_choice": null,
+    "selection": null,
+    "reply_requires_new_snapshot": true,
+    "separate_reviewer": true,
+    "retry_unknown_send": false,
+    "attachments_enabled": false
+  },
+  "non_goals": [
+    "personal_mailbox_import",
+    "workspace_directory_sync",
+    "other_contacts_import",
+    "automatic_bidirectional_sync",
+    "automatic_contact_merge",
+    "contact_or_mail_deletion",
+    "newsletter_subscription",
+    "drive_tree_changes",
+    "creator_youtube_connection_changes"
+  ],
+  "secrets_allowed": false
+}
