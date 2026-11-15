@@ -174,6 +174,7 @@ export async function deleteEmailCommunication(formData: FormData) {
 export async function sendApprovedEmail(formData: FormData) {
   const parsed = z.object({ id: z.string().uuid() }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/app/communicatie?fout=verzenden");
+  if (process.env.BESC_CRM_COMMUNICATION_ENABLED === "true") redirect("/app/communicatie/werkruimte?email=" + parsed.data.id);
   const context = await requireActiveMembership();
   if (!isManager(context.membership)) redirect(`/app/communicatie/${parsed.data.id}?fout=geen-toegang`);
   const { data: message } = await context.supabase

@@ -1,5 +1,7 @@
 # Pakket 13 — inventaris CRM, Gmail en Google Contacts
 
+Aanvulling: de [gezamenlijke lokale bouw van pakketten 13–15](Contacten-en-communicatie-pakketten-13-15.md) voert de vervolgstappen uit. Deze inventaris beschrijft de uitgangssituatie vóór die bouw; genoemde ontbrekende functies zijn niet allemaal meer de huidige lokale status.
+
 15 november 2026. Alleen lokale broncontrole op basis van `acc2f85` en bestaande tests met fictieve gegevens. Er zijn geen mailboxen, contacten, credentials, Cloud-databases of servers benaderd. De aanwezigheid van code en voorbeeldinstellingen bevestigt geen actuele Google-inrichting, verleende OAuth-rechten of live werking.
 
 Het [gezamenlijke ontwerp](Pakket-13-gezamenlijk-ontwerp.md) en de [uitvoerings- en acceptatievolgorde](Pakket-13-uitvoering-en-acceptatie.md) bouwen hierop verder. Alle nieuwe modelnamen en functies in die documenten zijn voorstellen, geen bestaande tabellen of gerealiseerde mogelijkheden.

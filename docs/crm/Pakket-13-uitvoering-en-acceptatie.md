@@ -1,5 +1,7 @@
 # Pakket 13 — uitvoering, keuzes en acceptatie
 
+Aanvulling: de [gezamenlijke lokale bouw van pakketten 13–15](Contacten-en-communicatie-pakketten-13-15.md) beschrijft de inmiddels uitgevoerde lokale implementatie en controles. Dit document bewaart de oorspronkelijke bouwvolgorde en voorgestelde acceptatiegevallen; echte inrichting en praktijkproeven blijven afzonderlijk open.
+
 15 november 2026. Dit document maakt het [gezamenlijke ontwerp](Pakket-13-gezamenlijk-ontwerp.md) uitvoerbaar voor latere opdrachten. De [inventaris](Pakket-13-inventaris.md) beschrijft wat nu werkelijk aanwezig is. Het passieve [overdrachtsformulier](../../ops/crm-gmail-contacts-design.example.json) is geen runtimeconfiguratie.
 
 ## Opgeleverd in pakket 13
