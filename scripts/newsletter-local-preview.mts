@@ -19,7 +19,7 @@ export async function startLocalNewsletterPreview(options:{enabled:boolean;direc
   if(options.enabled!==true||process.env.NODE_ENV==='production')throw Error('newsletter_local_preview_disabled');
   const store=new LocalNewsletterStore(options.directory,options.key);
   const capability=randomBytes(32).toString('hex'),csrf=randomBytes(32).toString('hex');
-  let origin='',chain:NewsletterChain;
+  let origin='';
   const hidden=(id:string,revision?:number)=>`<input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="id" value="${esc(id)}">${revision===undefined?'':`<input type="hidden" name="revision" value="${revision}">`}`;
   const action=(name:string,label:string,id:string,revision?:number)=>`<form method="post" action="/beheer/${name}">${hidden(id,revision)}<button>${esc(label)}</button></form>`;
   async function handle(req:IncomingMessage,res:ServerResponse){
@@ -86,7 +86,7 @@ export async function startLocalNewsletterPreview(options:{enabled:boolean;direc
   const server=createServer((req,res)=>{handle(req,res).catch(()=>{if(!res.headersSent)res.writeHead(503,{'Content-Type':'text/plain; charset=utf-8'});res.end('Lokale proefopslag niet beschikbaar.');});});
   await new Promise<void>((done,reject)=>{server.once('error',reject);server.listen(options.port??0,'127.0.0.1',done);});
   const bound=server.address();if(!bound||typeof bound==='string')throw Error('local_preview_bind');
-  origin=`http://127.0.0.1:${bound.port}`;chain=new NewsletterChain(store.transaction,origin);
+  origin=`http://127.0.0.1:${bound.port}`;const chain=new NewsletterChain(store.transaction,origin);
   return {origin,adminUrl:`${origin}/lokale-toegang?code=${capability}`,chain,close:()=>new Promise<void>((done,reject)=>server.close(e=>e?reject(e):done()))};
 }
 
