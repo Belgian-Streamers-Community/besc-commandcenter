@@ -1,0 +1,73 @@
+{
+  "package": 24,
+  "checked_on": "2026-11-15",
+  "status": "selected_local_checks_passed_live_acceptance_remains_open",
+  "source_versions": {
+    "command_center": "72f35874dc62593b1bf049a19c8bf941702b3092",
+    "website": "f273784674b0db7b31eacee420d290c44351b234",
+    "discordbot": "f71f0ea2f5b7507c16c030439802c021b22c16c2"
+  },
+  "local_checks": {
+    "command_center_tests": {"passed": 2033, "failed": 0, "skipped": 0},
+    "monitoring_sensor_tests": {"passed": 8, "failed": 0},
+    "token_guard_tests": {"passed": 6, "failed": 0},
+    "native_operations_tests": {"passed": 7, "failed": 0, "postgres_version": "17.11"},
+    "generated_dossier_models": {"checked": 22, "canonical_line_endings": "LF", "git_content_unchanged": true},
+    "local_next_api_suites": {"passed": 5, "failed": 0, "real_upstream_connections": false},
+    "website_unit_tests": {"passed": 61, "failed": 0, "skipped": 0},
+    "website_browser_existing": {"passed": 5, "failed": 0, "fixture_only": true},
+    "website_browser_experience": {"passed": 8, "failed": 0, "fixture_only": true},
+    "bot_tests": {"passed": 323, "failed": 0, "skipped": 0, "discord_login": false},
+    "typecheck": {"command_center": "passed", "website": "passed", "bot": "passed"},
+    "build": {"command_center": "passed", "website": "passed", "bot": "passed"},
+    "command_center_lint": "passed_with_zero_warnings",
+    "synthetic_recovery": {
+      "passed": true,
+      "network_disconnected_during_dump_and_restore": true,
+      "selected_counts_and_row_hashes_match": true,
+      "tables_count": 228,
+      "policies_count": 336,
+      "every_row_or_policy_content_checksum_verified": false,
+      "corrupt_archive_rejected": true,
+      "real_backups_read": false,
+      "full_application_disaster_recovery_proven": false
+    },
+    "owned_fixture_cleanup": "passed"
+  },
+  "initial_attempts": {
+    "windows_crlf_generator_check": "resolved_in_test_checkout_without_git_content_change",
+    "internal_network_host_database_access": "fixture_setup_corrected_localhost_only",
+    "browser_chromium1234": "interrupted_inconclusive_not_counted_as_passed",
+    "final_browser_run": "chromium1223_isolated_fixture_with_global_timeout_passed"
+  },
+  "historical_evidence_not_repeated_live": [
+    "2026-11-05 monitoring web, bot and database",
+    "2026-11-05 component recovery and local Auth/mail capture",
+    "2026-11-05 and 2026-11-06 actual own-account mail tests",
+    "2026-11-06 synthetic CC01-CC04 acceptance"
+  ],
+  "live_acceptance_open": [
+    "current runtime, Cloud schema and rollback identity",
+    "real roles and portal/provider chains",
+    "Meta inbox, YouTube creator and Instagram pilot",
+    "new CRM/Gmail/Contacts and Drive adapters",
+    "newsletter and merch production connections",
+    "actual BESC data and package23 practice trial",
+    "full current ecosystem restore including real external providers",
+    "independent monitoring and named technical/mailbox replacement",
+    "complete signed-in CC mobile and accessibility review",
+    "final content, historical blog import, media rights and public website acceptance"
+  ],
+  "second_reviewer_tests": "skipped_by_user_not_executed",
+  "whole_ecosystem_accepted": false,
+  "production_ready": false,
+  "live_changes": false,
+  "migrations_applied_to_cloud_or_dev": [],
+  "live_flags_changed": false,
+  "new_scheduler_or_cleanup_installed": false,
+  "real_credentials_or_backup_data_read": false,
+  "external_messages_or_transactions": false,
+  "activated": false,
+  "deployed": false,
+  "application_source_changes": 0
+}
