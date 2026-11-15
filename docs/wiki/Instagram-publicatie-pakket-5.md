@@ -1,5 +1,7 @@
 # Pakket 5 — Instagram met één verplichte afbeelding
 
+Aanvulling 15 november 2026: [pakket 12: inrichting en beperkte praktijkproef](../meta/Instagram-publicatie-inrichting-en-praktijkproef.md) beschrijft de actuele lokale controle, ontbrekende bevestigingen en grenzen voor een latere afzonderlijk goedgekeurde uitvoering. Deze oorspronkelijke pakket-5-notitie blijft historisch; migratietellingen hieronder zijn geen actuele Cloud-status.
+
 De gebruiker koos Instagram als eerste publicatieplatform. Dit pakket bouwt en test de keten lokaal met fictieve gegevens en nagebootste Meta-antwoorden. Het verandert geen bestaande koppeling, token, planning, Cloud DEV-database of server. Er is geen echte publicatie uitgevoerd.
 
 ## Wat de lokale keten doet
