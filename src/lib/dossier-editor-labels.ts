@@ -11,3 +11,5 @@ Object.assign(labels,{acquisition_type:"Herkomst materiaal",repair_asset_id:"Mat
 Object.assign(choices,{equipment:"Materiaal",computer:"Computer",streaming:"Streamingmateriaal",furniture:"Meubilair",software:"Software / licentie",vehicle:"Voertuig",maintenance:"Onderhoud / herstelling",loaned:"Uitgeleend",retired:"Buiten gebruik",lost:"Vermist",gifted:"Gekregen",invoice:"Factuur",repair:"Herstelbon"});
 
 Object.assign(labels,{document_id:"Document"});
+
+Object.assign(choices,{image:"Afbeelding",folder:"Map",application:"Toepassing"});

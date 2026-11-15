@@ -16,6 +16,8 @@ import { getGoogleDriveDocumentMetadata, googleDriveFileId } from "@/lib/google-
 
 import { sourceObservation } from "@/lib/source-observation";
 
+import { dossierLinkTypes, safeDossierLink } from "@/lib/dossier-link-types";
+
 const entityTypeSchema = z.enum(dossierEntityTypes);
 const baseSchema = z.object({
   entity_type: entityTypeSchema,
@@ -23,8 +25,8 @@ const baseSchema = z.object({
 });
 const linkSchema = baseSchema.extend({
   label: z.string().trim().min(1).max(120),
-  url: z.string().trim().url().refine((value) => value.startsWith("https://") || value.startsWith("http://")),
-  link_type: z.enum(["reference", "publication", "briefing", "document", "website", "other"]),
+  url: z.string().trim().url().refine((value) => safeDossierLink(value)),
+  link_type: z.enum(dossierLinkTypes).refine(value => dossierLinkTypes.indexOf(value) < 6 || process.env.BESC_DOSSIER_LINKS_ENABLED === "true"),
 });
 const relationSchema = baseSchema.extend({
   target: z.string().regex(/^(project|event|campaign|content|partner|community_person|task):[0-9a-f-]{36}$/i),

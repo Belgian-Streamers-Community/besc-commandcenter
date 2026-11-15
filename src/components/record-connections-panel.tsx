@@ -25,14 +25,9 @@ import { formatDateTime } from "@/lib/format";
 
 import { sourceObservationLabels } from "@/lib/source-observation";
 
-const linkTypeLabels: Record<string, string> = {
-  reference: "Referentie",
-  publication: "Publicatie",
-  briefing: "Briefing",
-  document: "Document",
-  website: "Website",
-  other: "Andere link",
-};
+import { dossierLinkTypes, dossierLinkLabels, dossierImagePreviewSource } from "@/lib/dossier-link-types";
+import { ImageLinkPreview } from "@/components/image-link-preview";
+const linkTypeLabels: Record<string,string> = dossierLinkLabels;
 
 export function RecordConnectionsPanel({ entityType, entityId, links, documents, relationships, options, canManage, modal, selectedLinkId, queryContext = "", view = "all" }: {
   entityType: DossierEntityType;
@@ -47,6 +42,8 @@ export function RecordConnectionsPanel({ entityType, entityId, links, documents,
   queryContext?: string;
   view?: "all" | "documents" | "relationships";
 }) {
+  const extendedLinks = process.env.BESC_DOSSIER_LINKS_ENABLED === "true";
+  const availableLinkTypes = dossierLinkTypes.filter((type,index) => index < 6 || extendedLinks || links.find(item => item.id === selectedLinkId)?.link_type === type);
   const queryHref = (query = "") => `?${[queryContext, query].filter(Boolean).join("&")}`;
   const orderedRelationships = view === "relationships" ? [...relationships].sort((a,b)=>a.entityType.localeCompare(b.entityType)||a.label.localeCompare(b.label,"nl")) : relationships;
   const selectedLink = links.find((item) => item.id === selectedLinkId);
@@ -59,7 +56,7 @@ export function RecordConnectionsPanel({ entityType, entityId, links, documents,
             <input type="hidden" name="entity_type" value={entityType}/><input type="hidden" name="entity_id" value={entityId}/>
             <label>Naam van de link<input name="label" placeholder="Bijvoorbeeld briefing, publicatie of website"/></label>
             <label>Webadres<input type="url" name="url" placeholder="https://..."/></label>
-            <label>Soort link<select name="link_type" defaultValue="reference"><option value="reference">Referentie</option><option value="publication">Publicatie</option><option value="briefing">Briefing</option><option value="document">Document</option><option value="website">Website</option><option value="other">Andere link</option></select></label>
+            <label>Soort link<select name="link_type" defaultValue="reference">{availableLinkTypes.map(type => <option key={type} value={type}>{dossierLinkLabels[type]}</option>)}</select></label>
             <div className="form-actions"><Link href={queryHref("")}>Annuleren</Link><button className="primary">Link opslaan</button></div>
           </form>
         </FormModal>
@@ -70,7 +67,7 @@ export function RecordConnectionsPanel({ entityType, entityId, links, documents,
             <input type="hidden" name="entity_type" value={entityType}/><input type="hidden" name="entity_id" value={entityId}/><input type="hidden" name="id" value={selectedLink.id}/>
             <label>Naam van de link<input name="label" defaultValue={selectedLink.label}/></label>
             <label>Webadres<input type="url" name="url" defaultValue={selectedLink.url}/></label>
-            <label>Soort link<select name="link_type" defaultValue={selectedLink.link_type}><option value="reference">Referentie</option><option value="publication">Publicatie</option><option value="briefing">Briefing</option><option value="document">Document</option><option value="website">Website</option><option value="other">Andere link</option></select></label>
+            <label>Soort link<select name="link_type" defaultValue={selectedLink.link_type}>{availableLinkTypes.map(type => <option key={type} value={type}>{dossierLinkLabels[type]}</option>)}</select></label>
             <div className="form-actions"><Link href={queryHref("")}>Annuleren</Link><button className="primary">Wijzigingen opslaan</button></div>
           </form>
         </FormModal>
@@ -98,7 +95,7 @@ export function RecordConnectionsPanel({ entityType, entityId, links, documents,
       <div className="record-connections-grid">
         {view !== "relationships" && <section className="form-card">
           <div className="form-heading"><div><span className="eyebrow">REFERENTIES</span><h2>Links</h2></div>{canManage ? <Link className="row-action" href={queryHref("koppeling=link")}><Plus size={14}/>Toevoegen</Link> : null}</div>
-          <div className="connection-list">{links.length ? links.map((item) => <article key={item.id}><div><a href={item.url} target="_blank" rel="noreferrer"><strong>{item.label}</strong><ExternalLink size={13}/></a><span>{linkTypeLabels[item.link_type] ?? item.link_type}</span></div>{canManage ? <div className="connection-actions"><Link aria-label={`${item.label} bewerken`} href={queryHref(`link=${item.id}`)}><Pencil size={14}/></Link><form action={deleteRecordLink}><input type="hidden" name="entity_type" value={entityType}/><input type="hidden" name="entity_id" value={entityId}/><input type="hidden" name="id" value={item.id}/><ConfirmSubmitButton aria-label={`${item.label} verwijderen`} className="icon-danger-button" message={`Link “${item.label}” verwijderen?`}><Trash2 size={14}/></ConfirmSubmitButton></form></div> : null}</article>) : <p className="empty-inline">Nog geen extra links gekoppeld.</p>}</div>
+          <div className="connection-list">{links.length ? links.map((item) => <article key={item.id}><div><a href={item.url} target="_blank" rel="noreferrer"><strong>{item.label}</strong><ExternalLink size={13}/></a><span>{linkTypeLabels[item.link_type] ?? item.link_type}</span>{extendedLinks && item.link_type === "image" && <ImageLinkPreview label={item.label} url={dossierImagePreviewSource(item.url)}/>}</div>{canManage ? <div className="connection-actions"><Link aria-label={`${item.label} bewerken`} href={queryHref(`link=${item.id}`)}><Pencil size={14}/></Link><form action={deleteRecordLink}><input type="hidden" name="entity_type" value={entityType}/><input type="hidden" name="entity_id" value={entityId}/><input type="hidden" name="id" value={item.id}/><ConfirmSubmitButton aria-label={`${item.label} verwijderen`} className="icon-danger-button" message={`Link “${item.label}” verwijderen?`}><Trash2 size={14}/></ConfirmSubmitButton></form></div> : null}</article>) : <p className="empty-inline">Nog geen extra links gekoppeld.</p>}</div>
         </section>}
         {view !== "documents" && <section className="form-card">
           <div className="form-heading"><div><span className="eyebrow">SAMENHANG</span><h2>Gerelateerde dossiers ({relationships.length})</h2></div>{canManage ? <Link className="row-action" href={queryHref("koppeling=relatie")}><Plus size={14}/>Koppelen</Link> : null}</div>
