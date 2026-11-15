@@ -28,7 +28,7 @@ export default async function CommunicationPage({ searchParams }: { searchParams
     supabase.from("meetings").select("id,title,meeting_at,attendees").eq("organization_id", org).is("deleted_at", null).not("status", "eq", "archived").order("title"),
     supabase.from("projects").select("id,title").eq("organization_id", org).is("deleted_at", null).not("status", "eq", "archived").order("title"),
     supabase.from("campaigns").select("id,title").eq("organization_id", org).is("deleted_at", null).not("status", "eq", "archived").order("title"),
-    supabase.from("partner_contacts").select("partner_id,name,email,is_primary").eq("organization_id", org).eq("is_primary", true),
+    supabase.from("partner_contacts").select("partner_id,name,email,is_primary,person:community_people(display_name,email)").eq("organization_id", org).eq("is_primary", true),
     supabase.from("email_templates").select("id,name,category,entity_type,subject_template,body_template").eq("organization_id", org).eq("is_active", true).order("name"),
     supabase.from("organizations").select("name").eq("id", org).maybeSingle(),
     supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
@@ -46,7 +46,7 @@ export default async function CommunicationPage({ searchParams }: { searchParams
     <AppShell active="Communicatie">
       <header className="topbar module-top">
         <div><p>GMAIL & DOSSIERS</p><h1>E-mailcommunicatie</h1></div>
-        <div className="project-actions"><Link href="/app/communicatie/sjablonen">Sjablonen beheren</Link><Link className="primary" href="/app/communicatie?nieuw=1"><Plus size={16}/>Nieuw Gmail-concept</Link></div>
+        <div className="project-actions">{process.env.BESC_CRM_COMMUNICATION_ENABLED === "true" && <Link href="/app/communicatie/werkruimte">Contacten en gesprekken</Link>}<Link href="/app/communicatie/sjablonen">Sjablonen beheren</Link><Link className="primary" href="/app/communicatie?nieuw=1"><Plus size={16}/>Nieuw Gmail-concept</Link></div>
       </header>
       <div className="module-body communication-module">
         <p className="lead">Maak Gmail-concepten vanuit een BESC-dossier. Een tweede bevoegde persoon keurt de e-mail goed voordat het bestuur ze kan verzenden.</p>
@@ -62,7 +62,7 @@ export default async function CommunicationPage({ searchParams }: { searchParams
               action={saveEmailCommunication}
               gmailConfigured={gmail.configured}
               templates={(templates.data ?? [])}
-              partners={(partners.data ?? []).map((item) => ({ id: item.id, title: item.name, email: contacts.data?.find((contact) => contact.partner_id === item.id)?.email || item.email || "", contactName: contacts.data?.find((contact) => contact.partner_id === item.id)?.name || "", followUpDate: item.next_follow_up }))}
+              partners={(partners.data ?? []).map((item) => {const contact=contacts.data?.find((c)=>c.partner_id===item.id);const central=Array.isArray(contact?.person)?contact.person[0]:contact?.person as {email:string|null;display_name:string}|undefined;return { id: item.id, title: item.name, email: central?.email || contact?.email || item.email || "", contactName: central?.display_name || contact?.name || "", followUpDate: item.next_follow_up };})}
               events={(events.data ?? []).map((item) => ({ id: item.id, title: item.title, date: item.start_at, location: item.location, isOnline: item.is_online }))}
               meetings={(meetings.data ?? []).map((item) => ({ id: item.id, title: item.title, date: item.meeting_at }))}
               projects={(projects.data ?? []).map((item) => ({ id: item.id, title: item.title }))}

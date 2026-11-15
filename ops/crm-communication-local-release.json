@@ -1,0 +1,24 @@
+{
+  "work_item": "contacts-communication-packages13-15",
+  "migration": {
+    "file": "20261115012546_crm_communication_local.sql",
+    "sha256_lf": "d78e740e531134cf2362f10d026310e59ee63bfc87db9acb38f371f4925c261f"
+  },
+  "new_private_tables": 11,
+  "runtime_default": "off",
+  "historical_rows_backfilled": false,
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "activation_authorized": false,
+  "live_provider_authorized": false,
+  "synchronization_authorized": false,
+  "send_authorized": false,
+  "oauth_scopes_changed": false,
+  "automatic_scheduler_added": false,
+  "google_contacts_writes_included": false,
+  "shared_workspace_credentials_reused": false,
+  "mail_read_selection": "at_most_five_explicit_threads",
+  "contacts_initial_page_budget": 3,
+  "contacts_max_items_per_page": 50,
+  "preflight_cloud_history_reverification_required": true
+}

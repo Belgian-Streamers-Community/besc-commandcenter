@@ -83,7 +83,11 @@ for (const name of names) {
 }
 const effects = JSON.parse(sql(readFileSync(new URL("../ops/foundation-effects-catalog.sql", import.meta.url), "utf8")));
 assert.equal(effects.read_only, "on");
-assert.equal(effects.tables.length,212); // All 209 historical tables plus three private progress tables.
+assert.equal(effects.tables.length,223); // All 212 historical tables plus eleven private CRM tables.
+const crmTables=['crm_connections','crm_connection_access','crm_runs','crm_receipts','crm_incoming','crm_contact_points','crm_contact_decisions','crm_thread_links','crm_outbox','crm_email_bindings','crm_events'];
+assert.deepEqual(effects.tables.filter(t=>t.schema==='private'&&t.name.startsWith('crm_')).map(t=>t.name).sort(),crmTables.toSorted());
+for(const name of crmTables){const table=effects.tables.find(t=>t.schema==='private'&&t.name===name);assert.ok(table?.rls);for(const role of ['anon','authenticated','service_role'])assert.ok(Object.values(table.grants[role]).every(v=>v===false));}
+for(const [name,authenticated,service]of [['crm_communication_owner',true,false],['crm_communication_server',false,true]]){const fn=effects.functions.find(f=>f.schema==='public'&&f.name===name);assert.ok(fn&&!fn.security_definer);assert.equal(fn.anon_execute,false);assert.equal(fn.authenticated_execute,authenticated);assert.equal(fn.service_role_execute,service);assert.ok(fn.settings?.includes('search_path=""'));}
 const resumableTables=['rs_jobs','rs_receipts','rs_events'];
 assert.deepEqual(effects.tables.filter(t=>t.schema==='private'&&t.name.startsWith('rs_')).map(t=>t.name).sort(),resumableTables.toSorted());
 for(const name of resumableTables){

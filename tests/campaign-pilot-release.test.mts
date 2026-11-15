@@ -174,7 +174,10 @@ test('F3 release: exact additive migration, historical SQL unchanged and live ga
   assert.equal(controls.required_history_before_separate_apply,resumable.expected_history_after_separate_apply);
   assert.equal(controls.expected_history_after_separate_apply,157);assert.equal(controls.new_private_tables,0);assert.equal(controls.new_functions,0);assert.equal(controls.runtime_default,'off');assert.equal(controls.runtime_factory_included,true);
   for(const key of ['automatic_scheduler_added','oauth_scopes_changed','live_contract_verified','cloud_apply_authorized','server_deploy_authorized','activation_authorized','live_message_read_authorized','reply_authorized','moderation_authorized'])assert.equal(controls[key],false);
-  const files = [...beforeStep11,...step11.new_migrations,adminAccess.migration,operations.migration,socialAlerts.migration,socialReview.migration,deliverableHistory.migration,reviewHistory.migration,youtube.migration,youtubeClosure.migration,youtubeAccount.migration,instagram.migration,inbox.migration,resumable.migration,controls.migration];
+  const crm=JSON.parse(readFileSync(new URL('ops/crm-communication-local-release.json',root),'utf8'));
+  assert.equal(crm.new_private_tables,11);assert.equal(crm.runtime_default,'off');
+  for(const key of ['cloud_apply_authorized','server_deploy_authorized','activation_authorized','live_provider_authorized','synchronization_authorized','send_authorized','oauth_scopes_changed','automatic_scheduler_added'])assert.equal(crm[key],false);
+  const files = [...beforeStep11,...step11.new_migrations,adminAccess.migration,operations.migration,socialAlerts.migration,socialReview.migration,deliverableHistory.migration,reviewHistory.migration,youtube.migration,youtubeClosure.migration,youtubeAccount.migration,instagram.migration,inbox.migration,resumable.migration,controls.migration,crm.migration];
   assert.deepEqual(readdirSync(new URL('supabase/migrations/', root)).filter(f => f.endsWith('.sql')).sort(), files.map(f => f.file).sort());
   for (const f of files) assert.equal(createHash('sha256').update(readFileSync(new URL('supabase/migrations/' + f.file, root), 'utf8').replaceAll('\r\n', '\n')).digest('hex'), f.sha256_lf, f.file);
   assert.deepEqual(manifest.excluded_history, ['20261001110000_seed_operational_guidelines.sql']);

@@ -1,5 +1,7 @@
 # Pakket 13 — gezamenlijk ontwerp voor contacten, communicatie en opvolging
 
+Aanvulling: zie de [gezamenlijke lokale bouw van pakketten 13–15](Contacten-en-communicatie-pakketten-13-15.md) voor de geïmplementeerde eerste versie, afwijkende interne tabelnamen, concrete begrenzingen en open echte proeven. Onderstaand ontwerp blijft het voorafgaande voorstel; het verleent geen live uitvoeringsakkoord.
+
 15 november 2026. **Voorgesteld ontwerp**, lokaal uitgewerkt op basis van de [inventaris](Pakket-13-inventaris.md). Geen schema, scherm, bevoegdheid of integratie is hiermee geïmplementeerd of geactiveerd. De [acceptatievolgorde](Pakket-13-uitvoering-en-acceptatie.md) scheidt ontwerp, lokale bouw en later toegestane live handelingen.
 
 ## 1. Het gewenste gebruik
