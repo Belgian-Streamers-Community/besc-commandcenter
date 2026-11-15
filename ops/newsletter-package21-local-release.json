@@ -1,0 +1,23 @@
+{
+  "package": 21,
+  "scope": "newsletter-local-acceptance-chain",
+  "base_commit": "653eb9b6d48137b3fe22e79c477df9c939276468",
+  "fixture_only": true,
+  "transport": "mock",
+  "real_email": false,
+  "google_token_refresh": false,
+  "cloud_database_read": false,
+  "cloud_database_write": false,
+  "migrations": [],
+  "existing_newsletter_actions_replaced": false,
+  "website_changed": false,
+  "activated": false,
+  "deployed": false,
+  "production_connection_ready": false,
+  "remaining_product_connection": [
+    "existing organization and session context",
+    "existing tables with durable revision and claim enforcement",
+    "existing management pages and public website",
+    "real provider outcome verification and explicit limited DEV acceptance"
+  ]
+}
