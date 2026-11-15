@@ -1,0 +1,25 @@
+{
+  "package": 22,
+  "scope": "merch-local-acceptance-chain",
+  "base_commit": "4addbec858b1fb1a00d1a2aed55598a1f00cf3cc",
+  "fixture_only": true,
+  "provider": "mock",
+  "real_transactions": false,
+  "provider_accounts_or_credentials_created": false,
+  "real_stock_changed": false,
+  "financial_registers_changed": false,
+  "cloud_database_read": false,
+  "cloud_database_write": false,
+  "migrations": [],
+  "website_changed": false,
+  "existing_shop_actions_replaced": false,
+  "activated": false,
+  "deployed": false,
+  "production_connection_ready": false,
+  "remaining_product_connection": [
+    "confirmed supplier, seller and fulfillment ownership",
+    "existing product, organization and session context",
+    "durable database and optional existing external checkout or real provider adapter",
+    "confirmed catalog, service policy and explicit live acceptance"
+  ]
+}

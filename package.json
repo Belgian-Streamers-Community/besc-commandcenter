@@ -11,7 +11,9 @@
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/*.test.mts",
     "test:permissions": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/permissions.test.mts",
     "test:newsletter": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/newsletter-*.test.mts",
-    "newsletter:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/newsletter-local-preview.mts --local-newsletter-fixture"
+    "newsletter:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/newsletter-local-preview.mts --local-newsletter-fixture",
+    "test:merch": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/merch-*.test.mts",
+    "merch:local": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/merch-local-preview.mts --local-merch-fixture"
   },
   "dependencies": {
     "@ai-sdk/react": "3.0.236",
