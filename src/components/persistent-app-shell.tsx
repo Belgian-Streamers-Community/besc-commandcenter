@@ -305,7 +305,12 @@ export function PersistentAppShell({ children, initialData }: { children: ReactN
           </form>
         </div>
       </aside>
-      <details className="mobile-navigation" ref={mobileNavigation}>
+      <details className="mobile-navigation" ref={mobileNavigation} onKeyDown={(event) => {
+        if (event.key !== "Escape" || event.defaultPrevented || !event.currentTarget.open) return;
+        event.preventDefault();
+        event.currentTarget.open = false;
+        event.currentTarget.querySelector("summary")?.focus();
+      }}>
         <summary><Menu size={18}/><span>Menu</span></summary>
         <div className="mobile-navigation-panel">
           <div className="mobile-navigation-brand">

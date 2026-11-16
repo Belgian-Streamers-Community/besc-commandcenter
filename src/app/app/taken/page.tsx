@@ -33,7 +33,7 @@ const labels = Object.fromEntries(taskStatuses.map(({ value, label }) => [value,
 
 function TaskList({ tasks, completed = false }: { tasks: TaskRow[]; completed?: boolean }) {
   return (
-    <div className={`data-list ${completed ? "completed-list" : ""}`}>
+    <div className={`data-list task-list ${completed ? "completed-list" : ""}`}>
       {tasks.map((task) => (
         <article key={task.id}>
           <form action={updateTaskStatus}>
