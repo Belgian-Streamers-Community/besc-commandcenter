@@ -3,8 +3,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/configured";
 import { hasPermission } from "@/lib/permissions";
 import { formatDate, formatDateTime, formatDateTimeLocal } from "@/lib/format";
 import type { AttentionView, DashboardData, DashboardWidget, ScheduleView } from "@/lib/types";
+import { taskStatusLabel } from "@/lib/task-status";
 
-const statusLabels:Record<string,string>={todo:"Te doen",doing:"Bezig",waiting:"Wachten",review:"Review",done:"Afgerond"};
 const projectLabels:Record<string,string>={idea:"Idee",planned:"Gepland",active:"Actief",blocked:"Geblokkeerd",done:"Afgerond"};
 const roleLabels:Record<string,string>={admin:"Beheerder",board:"Bestuur",member:"Teamlid",volunteer:"Vrijwilliger"};
 type TaskRow={id:string;title:string;status:string;priority:string;due_at:string|null;created_by:string;projects:{title:string}|null;task_assignees:{user_id:string}[]};
@@ -84,7 +84,7 @@ async function loadDashboardData(): Promise<DashboardData> {
 
   const personalTasks=((taskRows??[]) as unknown as TaskRow[]).filter(task=>{
     const assignees=task.task_assignees??[];
-    return assignees.some(item=>item.user_id===user.id)||(!assignees.length&&task.created_by===user.id);
+    return assignees.some(item=>item.user_id===user.id);
   });
   const personalProjects=((projectRows??[]) as unknown as ProjectRow[]).filter(project=>project.owner_id===user.id||(project.project_members??[]).some(item=>item.user_id===user.id));
   const overdue=personalTasks.filter(task=>task.due_at&&new Date(task.due_at)<today);
@@ -103,7 +103,7 @@ async function loadDashboardData(): Promise<DashboardData> {
     .map(({at,...item})=>({...item,when:dateLabel(at,true)}));
 
   const widgets:DashboardWidget[]=[
-    {label:"Mijn open taken",value:personalTasks.length,description:`${overdue.length} achterstallig`,href:"/app/taken?van_mij=1",tone:overdue.length?"red":"orange"},
+    {label:"Mijn open taken",value:personalTasks.length,description:`${overdue.length} achterstallig`,href:"/app/taken?van_mij=1&weergave=open",tone:overdue.length?"red":"orange"},
     {label:"Mijn projecten",value:personalProjects.length,description:`${blocked.length} geblokkeerd`,href:"/app/projecten?van_mij=1",tone:blocked.length?"red":"green"},
     ...(manager?[{label:"Open actiepunten",value:meetingActions?.length??0,description:"Uit vergaderingen",href:"/app/vergaderingen",tone:"violet" as const},{label:"VZW-deadlines",value:openCompliance??0,description:"Binnen 14 dagen",href:"/app/administratie",tone:(openCompliance??0)>0?"red" as const:"green" as const}]:[]),
     ...(finance?[{label:"Financiële opvolging",value:pendingExpenses??0,description:"Te beoordelen of terugbetalen",href:"/app/financien",tone:(pendingExpenses??0)>0?"orange" as const:"green" as const}]:[]),
@@ -113,7 +113,7 @@ async function loadDashboardData(): Promise<DashboardData> {
     loadState: "ready",
     name:profile?.display_name||user.email?.split("@")[0]||"Gebruiker",role:roleLabels[membership.role]||"Teamlid",roleKey:membership.role,
     taskCount:personalTasks.length,inboxCount:inboxRows?.length??0,projectCount:personalProjects.length,notificationCount:notificationCount??0,attentionCount:attention.length,
-    tasks:personalTasks.slice(0,5).map(task=>({id:task.id,title:task.title,project:task.projects?.title??"Zonder project",due:task.due_at?dateLabel(task.due_at):"Geen deadline",priority:task.priority,status:statusLabels[task.status]??task.status})),
+    tasks:personalTasks.slice(0,5).map(task=>({id:task.id,title:task.title,project:task.projects?.title??"Zonder project",due:task.due_at?dateLabel(task.due_at):"Geen deadline",priority:task.priority,status:taskStatusLabel(task.status)})),
     inbox:(inboxRows??[]).map(item=>({id:item.id,title:item.title,source:item.source,created:new Intl.RelativeTimeFormat("nl").format(-Math.max(1,Math.round((Date.now()-new Date(item.created_at).getTime())/86400000)),"day")})),
     projects:personalProjects.slice(0,4).map((project,index)=>({id:project.id,name:project.title,progress:project.status==="active"?50:project.status==="blocked"?35:20,status:projectLabels[project.status]??project.status,due:project.due_date?dateLabel(project.due_date):"Nog te plannen",color:["#ef7f3b","#7357d6","#2f8f77","#c64545"][index%4]})),
     attention,schedule,actionItems:(meetingActions??[]).slice(0,5).map(item=>({id:item.id,title:item.title,meeting:(item.meetings as unknown as {title:string}|null)?.title??"Vergadering",href:item.task_id?`/app/taken/${item.task_id}`:`/app/vergaderingen/${item.meeting_id}`})),widgets,

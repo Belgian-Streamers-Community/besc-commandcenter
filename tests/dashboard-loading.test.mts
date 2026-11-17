@@ -22,6 +22,7 @@ function loadSource(path: string, overrides: Record<string, unknown> = {}) {
     if (id in overrides) return overrides[id];
     if (id === "@/lib/permissions") return loadSource("src/lib/permissions.ts");
     if (id === "@/lib/format") return loadSource("src/lib/format.ts");
+    if (id === "@/lib/task-status") return loadSource("src/lib/task-status.ts");
     if (id === "next/link") return { __esModule: true, default: ({ children, ...props }: { children: unknown; href?: string }) => React.createElement("a", props, children) };
     return require(id);
   }, Date, Intl });
@@ -31,7 +32,7 @@ function loadSource(path: string, overrides: Record<string, unknown> = {}) {
 function fixture(options: {
   configured?: boolean; authError?: boolean; noUser?: boolean; noMembership?: boolean;
   failure?: string; rejection?: string; nullData?: string; nullCount?: string;
-  populated?: boolean; role?: string;
+  populated?: boolean; role?: string; taskRows?: unknown[];
 } = {}) {
   const calls: { table: string; filters: unknown[][] }[] = [];
   const user = "22222222-2222-4222-8222-222222222222";
@@ -47,6 +48,7 @@ function fixture(options: {
         if (table === "profiles") return Promise.resolve({ data: { display_name: "Fixture" }, error: null });
         let data: unknown[] = [];
         if (options.populated && table === "tasks") data = [{ id: "task-1", title: "Fixturetaak", status: "todo", priority: "normal", due_at: null, created_by: user, projects: null, task_assignees: [{ user_id: user }] }];
+        if (options.taskRows && table === "tasks") data = options.taskRows;
         if (options.populated && table === "projects") data = [{ id: "project-1", title: "Fixtureproject", status: "active", due_date: null, owner_id: user, project_members: [] }];
         return Promise.resolve({ data: options.nullData === table ? null : data, count: options.nullCount === table ? null : 0, error: null });
       };
@@ -122,4 +124,19 @@ test("volunteers do not query restricted management or finance sources", async (
   const f = fixture({ role: "volunteer" }); const data = await f.getData();
   assert.equal(data.loadState, "ready");
   assert.ok(!f.calls.some(c => ["inbox_items", "meetings", "meeting_action_items", "expenses", "compliance_deadlines"].includes(c.table)));
+});
+
+test("personal dashboard excludes self-created unassigned and other people's tasks", async () => {
+  const user = "22222222-2222-4222-8222-222222222222";
+  const task = (id: string, assignees: string[]) => ({ id, title: id, status: "doing", priority: "normal", due_at: "2020-01-01T00:00:00Z", created_by: user, projects: null, task_assignees: assignees.map(user_id => ({ user_id })) });
+  const data = await fixture({ taskRows: [task("mine", [user, "other"]), task("unassigned", []), task("theirs", ["other"])] }).getData();
+  assert.equal(data.taskCount, 1);
+  assert.equal(data.tasks.length, 1);
+  assert.equal(data.tasks[0].id, "mine");
+  assert.equal(data.tasks[0].status, "Bezig");
+  assert.equal(data.attention.length, 1);
+  const widget = data.widgets.find(item => item.label === "Mijn open taken")!;
+  assert.equal(widget.value, 1);
+  assert.equal(widget.description, "1 achterstallig");
+  assert.equal(widget.href, "/app/taken?van_mij=1&weergave=open");
 });
