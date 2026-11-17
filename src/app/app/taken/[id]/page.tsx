@@ -10,6 +10,7 @@ import { requireActiveMembership } from "@/lib/auth-context";
 import { loadDossierConnections, loadRelationOptions } from "@/lib/dossier-relations";
 import { hasPermission } from "@/lib/permissions";
 import { formatDateTime } from "@/lib/format";
+import { taskStatusLabel } from "@/lib/task-status";
 import { addChecklistItem, deleteTask, setTaskAssignee, toggleChecklistItem } from "./actions";
 
 type TaskDetail = {
@@ -69,7 +70,7 @@ export default async function TaskDetailPage({
           <p>{task.projects?.title || "Zonder project"}</p>
         </div>
         <div className="project-actions">
-          <span className="badge">{task.status}</span>
+          <span className="badge">{taskStatusLabel(task.status)}</span>
           <Link className="primary" href="?bewerken=1">Bewerken</Link>
         </div>
       </header>

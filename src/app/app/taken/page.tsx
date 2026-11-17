@@ -9,6 +9,7 @@ import { requireActiveMembership } from "@/lib/auth-context";
 import { formatDateTime } from "@/lib/format";
 import { updateTaskStatus } from "../actions";
 import { campaignWorkflowEnabled } from "@/lib/campaign-pilot";
+import { taskStatuses, taskStatusLabel } from "@/lib/task-status";
 
 type TaskRow = {
   id: string;
@@ -19,17 +20,6 @@ type TaskRow = {
   completed_at?: string | null;
   projects: { title: string } | null;
 };
-
-const taskStatuses = [
-  { value: "todo", label: "Te doen" },
-  { value: "doing", label: "Bezig" },
-  { value: "waiting", label: "Wachten" },
-  { value: "review", label: "Review" },
-  { value: "done", label: "Afgerond" },
-  { value: "cancelled", label: "Geannuleerd" },
-];
-
-const labels = Object.fromEntries(taskStatuses.map(({ value, label }) => [value, label]));
 
 function TaskList({ tasks, completed = false }: { tasks: TaskRow[]; completed?: boolean }) {
   return (
@@ -55,12 +45,12 @@ function TaskList({ tasks, completed = false }: { tasks: TaskRow[]; completed?: 
               {formatDateTime(task.due_at, "geen deadline")}
             </p>
           </div>
-          <span className="badge">{labels[task.status] ?? task.status}</span>
-          <form action={updateTaskStatus}>
+          <span className="badge">{taskStatusLabel(task.status)}</span>
+          {(completed || task.status !== "doing") && <form action={updateTaskStatus}>
             <input type="hidden" name="id" value={task.id} />
             <input type="hidden" name="status" value={completed ? "todo" : "doing"} />
             <button type="submit">{completed ? "Heropen" : "Start"}</button>
-          </form>
+          </form>}
         </article>
       ))}
     </div>
