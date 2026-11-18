@@ -6,6 +6,7 @@ import {AppShell} from '@/components/app-shell';
 import {requireActiveMembership} from '@/lib/auth-context';
 import {contactAnswer,mailAnswer,crmContactDiff,crmMatchCandidates} from '@/lib/crm-communication';
 import {crmCommunicationAction} from './actions';
+import {BoundedPanel,boundedGrantList} from './bounded-panel';
 export const dynamic='force-dynamic';
 
 type Row={id:string;[key:string]:unknown};
@@ -42,11 +43,14 @@ export default async function CrmCommunicationWorkspace({searchParams}:{searchPa
  const emails=await supabase.from('email_communications').select('id,title,status').eq('organization_id',org).is('deleted_at',null).in('status',['draft','changes_requested','failed']).order('updated_at',{ascending:false}).limit(50);
  const members=await supabase.from('organization_members').select('user_id,profiles(display_name)').eq('organization_id',org).eq('status','active');
  const gmail=selected.kind==='gmail';
+ const bounded=process.env.BESC_CRM_BOUNDED_RECEIVE_ENABLED==='true'?await supabase.rpc('crm_bounded_owner',{p_org:org,p_action:'list'}):null;
+ const boundedGrants=bounded&&!bounded.error?boundedGrantList.safeParse(bounded.data):null;
  return <AppShell active="Communicatie"><header className="topbar"><div><p>CONTACTEN EN COMMUNICATIE</p><h1>Gesprekken en contactgegevens</h1></div><Link href="/app/communicatie">Mailregister</Link></header>
   <div className="module-body"><nav aria-label="Communicatieverbindingen">{available.map(c=><Link key={c.id} href={'?connection='+c.id}>{c.kind==='gmail'?'Gmail':'Google Contacts'} · {text(c.owner_email)} </Link>)}</nav>
    <p>Alleen handmatige, geselecteerde verwerking. Een contact krijgt geen accounttoegang. Een mail wordt afzonderlijk beoordeeld voordat hij kan worden verzonden.</p>
    {query.fout&&<p className="error-note" role="alert">De actie is niet bevestigd. Controleer de opgeslagen status en historie voordat je opnieuw handelt.</p>}
    {query.succes&&<p role="status">De actie is opgeslagen. Controleer hieronder de nieuwe status.</p>}
+   {bounded&&(bounded.error||!boundedGrants?.success)?<p role="alert">De tijdelijke ontvangstrechten konden niet worden gecontroleerd. Start geen ontvangst.</p>:boundedGrants?.success&&<BoundedPanel grants={boundedGrants.data.filter(g=>g.kind===selected.kind)}/>}
    {lookups.some(x=>(x.data?.length??0)>200)&&<p>De keuzelijst toont maximaal 200 dossiers per soort. Zoek een ontbrekend dossier eerst in zijn bestaande module; kies geen vervanging.</p>}
    <section className="form-card"><h2>Een leesronde voorbereiden</h2><p>Voorbereiden leest nog niets bij Google. Verwerk daarna één pagina per bewuste klik.</p>
     {canWrite&&<>
