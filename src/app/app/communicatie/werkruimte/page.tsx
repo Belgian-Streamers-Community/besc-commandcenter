@@ -7,6 +7,8 @@ import {requireActiveMembership} from '@/lib/auth-context';
 import {contactAnswer,mailAnswer,crmContactDiff,crmMatchCandidates} from '@/lib/crm-communication';
 import {crmCommunicationAction} from './actions';
 import {BoundedPanel,boundedGrantList} from './bounded-panel';
+import {reviewGrants,crmVisibleConversationLinks,crmVisibleTarget} from '@/lib/crm-review';
+import {ReviewPanel} from './review-panel';
 export const dynamic='force-dynamic';
 
 type Row={id:string;[key:string]:unknown};
@@ -45,12 +47,15 @@ export default async function CrmCommunicationWorkspace({searchParams}:{searchPa
  const gmail=selected.kind==='gmail';
  const bounded=process.env.BESC_CRM_BOUNDED_RECEIVE_ENABLED==='true'?await supabase.rpc('crm_bounded_owner',{p_org:org,p_action:'list'}):null;
  const boundedGrants=bounded&&!bounded.error?boundedGrantList.safeParse(bounded.data):null;
+ const review=process.env.BESC_CRM_REVIEW_ENABLED==='true'?await supabase.rpc('crm_review_owner',{p_org:org,p_action:'list',p_connection:selected.id}):null;
+ const reviews=review&&!review.error?reviewGrants.safeParse(review.data):null;
  return <AppShell active="Communicatie"><header className="topbar"><div><p>CONTACTEN EN COMMUNICATIE</p><h1>Gesprekken en contactgegevens</h1></div><Link href="/app/communicatie">Mailregister</Link></header>
   <div className="module-body"><nav aria-label="Communicatieverbindingen">{available.map(c=><Link key={c.id} href={'?connection='+c.id}>{c.kind==='gmail'?'Gmail':'Google Contacts'} · {text(c.owner_email)} </Link>)}</nav>
    <p>Alleen handmatige, geselecteerde verwerking. Een contact krijgt geen accounttoegang. Een mail wordt afzonderlijk beoordeeld voordat hij kan worden verzonden.</p>
    {query.fout&&<p className="error-note" role="alert">De actie is niet bevestigd. Controleer de opgeslagen status en historie voordat je opnieuw handelt.</p>}
    {query.succes&&<p role="status">De actie is opgeslagen. Controleer hieronder de nieuwe status.</p>}
    {bounded&&(bounded.error||!boundedGrants?.success)?<p role="alert">De tijdelijke ontvangstrechten konden niet worden gecontroleerd. Start geen ontvangst.</p>:boundedGrants?.success&&<BoundedPanel grants={boundedGrants.data.filter(g=>g.kind===selected.kind)}/>}
+   {review&&(review.error||!reviews?.success)?<p role="alert">De tijdelijke beoordelingsrechten konden niet worden gecontroleerd. Voer geen beoordeling uit.</p>:reviews?.success&&<ReviewPanel grants={reviews.data.filter(g=>incoming.some(i=>i.id===g.incoming_id))} connection={selected.id} options={options}/>}
    {lookups.some(x=>(x.data?.length??0)>200)&&<p>De keuzelijst toont maximaal 200 dossiers per soort. Zoek een ontbrekend dossier eerst in zijn bestaande module; kies geen vervanging.</p>}
    <section className="form-card"><h2>Een leesronde voorbereiden</h2><p>Voorbereiden leest nog niets bij Google. Verwerk daarna één pagina per bewuste klik.</p>
     {canWrite&&<>
@@ -65,7 +70,9 @@ export default async function CrmCommunicationWorkspace({searchParams}:{searchPa
    <section className="form-card"><h2>{gmail?'Geselecteerde gesprekken':'Contactvoorstellen'}</h2><p>Laatste 100 ontvangen items; een voorstel is nog geen koppeling of wijziging.</p>
     {incoming.map(item=>{
      if(gmail){const parsed=mailAnswer.safeParse(item.payload);if(!parsed.success)return <p key={item.id} role="alert">Een bericht kan niet veilig worden weergegeven.</p>;const m=parsed.data;
+      const linked=crmVisibleConversationLinks(overview.links,selected.id,m.thread_id,options);
       return <article key={item.id}><h3>{m.subject||'Zonder onderwerp'}</h3><p>Van: {m.from} · {m.date}</p><p style={{whiteSpace:'pre-wrap'}}>{m.body||'Geen platte tekst opgehaald.'}</p>{m.has_attachments&&<p>Bijlagen zijn niet opgehaald.</p>}
+       <div><h4>Gekoppelde contacten en dossiers</h4>{linked===null?<p role="alert">De gesprekskoppelingen konden niet veilig worden weergegeven.</p>:linked.length===0?<p>Dit gesprek is nog niet aan een contact of dossier gekoppeld.</p>:<ul>{linked.map(l=><li key={l.key}>{l.target?<Link href={l.target.href}>{l.target.label}</Link>:'Een gekoppeld contact of dossier is niet beschikbaar.'}</li>)}</ul>}<p>Een koppeling geldt voor het gesprek; er worden geen extra berichten opgehaald.</p></div>
        {canWrite&&<Action connection={selected.id} action="link_thread" data={{thread_id:m.thread_id}}><Entities options={options}/><button>Gesprek aan gekozen contact of dossier koppelen</button></Action>}
       </article>;
      }
@@ -73,12 +80,14 @@ export default async function CrmCommunicationWorkspace({searchParams}:{searchPa
      const previous=item.previous_decision as {person_id?:string;partner_id?:string;base?:unknown}|null;
      const local=people.find(p=>p.id===previous?.person_id)??partners.find(p=>p.id===previous?.partner_id);
      const base=contactAnswer.safeParse(previous?.base);
+     const decision=item.decision as {person_id?:string;partner_id?:string}|null;
+     const decisionTarget=decision?crmVisibleTarget(decision.person_id?'community_person':'partner',decision.person_id??decision.partner_id??'',options):null;
      const localPoints=points.filter(p=>p.person_id===local?.id||p.partner_id===local?.id);
      const diff=crmContactDiff(base.success?base.data:null,{names:local?[text(local.display_name)||text(local.name)]:[],emails:[...(local?.email?[text(local.email)]:[]),...localPoints.filter(p=>p.kind==='email').map(p=>text(p.value))],phones:localPoints.filter(p=>p.kind==='phone').map(p=>text(p.value)),organizations:[]},remote);
      return <article key={item.id}><h3>{remote.names.join(', ')||'Contact zonder naam'}</h3><p>{remote.deleted?'Verwijderd bij Google — lokale gegevens blijven behouden':remote.emails.join(', ')}</p>
       <dl>{Object.entries(diff).map(([field,value])=><div key={field}><dt>{({names:'Naam',emails:'E-mail',phones:'Telefoon',organizations:'Organisatie'} as Record<string,string>)[field]}</dt><dd>{labels[value.state]} · lokaal: {value.local.join(', ')||'Niet ingevuld'} · Google: {value.remote.join(', ')||'Niet ingevuld'}</dd></div>)}</dl>
       {remote.emails.some(address=>crmMatchCandidates(address,people.map(p=>({id:p.id,email:text(p.email)||null}))).length>1)&&<p className="error-note">Meerdere bestaande personen gebruiken dit adres. Er wordt niets automatisch gekoppeld.</p>}
-      {item.decision?<p>Deze versie is beoordeeld. Een gewijzigde Google-versie wordt opnieuw voorgelegd.</p>:!canWrite?<p>Je kunt dit voorstel lezen; toepassen vraagt afzonderlijke bevoegdheid.</p>:<>
+      {item.decision?<p>Deze versie is beoordeeld. {decisionTarget&&<>Bevestigd bij <Link href={decisionTarget.href}>{decisionTarget.label}</Link>. </>}Een gewijzigde Google-versie wordt opnieuw voorgelegd.</p>:!canWrite?<p>Je kunt dit voorstel lezen; toepassen vraagt afzonderlijke bevoegdheid.</p>:<>
        {!remote.deleted&&<Action connection={selected.id} action="contact_decide" data={{incoming_id:item.id,revision:item.revision,point_sets:points}}><Entities options={options} peopleOnly/>
         {[...remote.emails.map(value=>({kind:'email',value})),...remote.phones.map(value=>({kind:'phone',value}))].map(p=><label key={p.kind+p.value}><input type="checkbox" name="point" value={JSON.stringify(p)}/>{p.kind==='email'?'E-mail':'Telefoon'}: {p.value}</label>)}
         <Confirm label="Voeg alleen de gekozen contactpunten toe; behoud bestaande gegevens en rechten."/><button>Gekozen gegevens bij bestaand contact bewaren</button>
@@ -113,7 +122,7 @@ export default async function CrmCommunicationWorkspace({searchParams}:{searchPa
      </article>;
     })}</section>
    </>}
-   <section className="form-card"><h2>Historie</h2>{z.array(z.object({operation:z.string(),created_at:z.string()})).parse(overview.events??[]).map((event,i)=><p key={i}>{({submitted:'Beoordeling aangevraagd',approved:'Goedgekeurd',rejected:'Geweigerd',claimed:'Verwerking gestart',mail_dispatch:'Verzending aangevraagd',mail_complete:'Verzending bevestigd',mail_uncertain:'Uitkomst onzeker',page_committed:'Ontvangstpagina opgeslagen',contact_decide:'Contactpunten gekozen',contact_ignore:'Contactversie overgeslagen',follow_up_created:'Opvolgtaak gemaakt'} as Record<string,string>)[event.operation]??'Beheeractie vastgelegd'} · {event.created_at}</p>)}</section>
+   <section className="form-card"><h2>Historie</h2>{z.array(z.object({operation:z.string(),created_at:z.string()})).parse(overview.events??[]).map((event,i)=><p key={i}>{({submitted:'Beoordeling aangevraagd',approved:'Goedgekeurd',rejected:'Geweigerd',claimed:'Verwerking gestart',mail_dispatch:'Verzending aangevraagd',mail_complete:'Verzending bevestigd',mail_uncertain:'Uitkomst onzeker',page_committed:'Ontvangstpagina opgeslagen',contact_decide:'Contactpunten gekozen',contact_ignore:'Contactversie overgeslagen',follow_up_created:'Opvolgtaak gemaakt',contact_confirmed_existing:'Bestaand contact bevestigd zonder aanvullingen',thread_linked:'Gesprek aan dossier gekoppeld',review_granted:'Tijdelijke beoordeling vrijgegeven',review_stopped:'Tijdelijke beoordeling ingetrokken'} as Record<string,string>)[event.operation]??'Beheeractie vastgelegd'} · {event.created_at}</p>)}</section>
    {membership.role==='admin'&&<section className="form-card"><h2>Verbinding sluiten</h2><Action connection={selected.id} action="disable"><Confirm label="Stop nieuwe verwerking via deze verbinding; bewaar de bestaande gegevens en historie."/><button>Deze verbinding sluiten</button></Action></section>}
   </div></AppShell>;
 }
