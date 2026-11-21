@@ -4,6 +4,7 @@ import { requireActiveMembership } from "@/lib/auth-context";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { exchangeMetaCode, fetchMetaManagedAssets, metaConfiguration, selectMetaAsset, verifyMetaToken, type MetaPlatform } from "@/lib/meta-integration";
 import { metaPermissionSummary } from "@/lib/meta-token-diagnostics";
+import { metaConsentCapability, type MetaConsentCapability } from "@/lib/meta-inbox-consent";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -13,8 +14,17 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const expectedState = cookieStore.get("besc_meta_oauth_state")?.value;
   const accountId = cookieStore.get("besc_meta_oauth_account")?.value;
+  const rawCapability = cookieStore.get("besc_meta_oauth_capability")?.value;
   cookieStore.delete("besc_meta_oauth_state");
   cookieStore.delete("besc_meta_oauth_account");
+  cookieStore.delete("besc_meta_oauth_capability");
+  let capability: MetaConsentCapability;
+  try {
+    // Re-checked at return: a consent started while the switch was on is refused once it is off.
+    capability = metaConsentCapability(rawCapability, process.env);
+  } catch {
+    return NextResponse.redirect(new URL("/app/integraties/social?fout=inboxrechten-uit", trustedOrigin));
+  }
   if (!state || !expectedState || state !== expectedState || !code || !accountId) return NextResponse.redirect(new URL("/app/integraties/social?fout=oauth-state", trustedOrigin));
 
   const { supabase, user, membership } = await requireActiveMembership();
@@ -27,7 +37,7 @@ export async function GET(request: Request) {
     const token = await exchangeMetaCode(code);
     const assets = await fetchMetaManagedAssets(token.access_token!);
     const asset = selectMetaAsset(assets, platform, account.external_account_id);
-    const diagnostics = await verifyMetaToken(asset.accessToken, platform);
+    const diagnostics = await verifyMetaToken(asset.accessToken, platform, capability);
     const expiresAt = token.expires_in ? new Date(Date.now() + token.expires_in * 1000).toISOString() : null;
     const admin = createAdminClient();
     const { error: credentialError } = await admin.rpc("store_social_account_credentials", {

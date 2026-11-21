@@ -32,6 +32,7 @@ export function fixture(role='admin') {
       if(name==='@/lib/social-connectors')return definitions;
       if(name==='@/lib/google-workspace')return {googleWorkspaceConfiguration:()=>({configured:true,missing:[]}),googlePitchdeckConfiguration:()=>({sponsor:'template'})};
       if(name==='@/lib/google-gmail')return {googleGmailConfiguration:()=>({configured:true,sender:'test@example.invalid'})};
+      if(name==='@/lib/meta-inbox-consent')return {metaInboxConsentEnabled:(env:Record<string,string|undefined>)=>env.BESC_META_INBOX_CONSENT_ENABLED==='true'};
       if(name.startsWith('@/lib/')&&name.endsWith('-integration'))return new Proxy({},{get:()=>()=>({configured:true})});
       if(name==='./social-accounts')return load('social-accounts.tsx');
       if(name.endsWith('actions'))return new Proxy({},{get:()=>()=>{}});
