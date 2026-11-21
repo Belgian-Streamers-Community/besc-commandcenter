@@ -1,0 +1,19 @@
+{
+ "work_item": "stap2-instagram-publish-consent-local",
+ "base_commit": "56c134278afaaea358b3e95582960f0820d5ec79",
+ "date": "2026-11-21",
+ "runtime_default": "off",
+ "switch": "BESC_META_PUBLISH_CONSENT_ENABLED",
+ "default_oauth_scopes_changed": false,
+ "optional_publish_scopes": {"instagram": ["instagram_basic", "instagram_content_publish", "pages_read_engagement"]},
+ "facebook_publish_consent": false,
+ "hash_guarded_files_changed": false,
+ "migration_added": false,
+ "publication_activation_changed": false,
+ "cloud_apply_authorized": false,
+ "server_deploy_authorized": false,
+ "meta_consent_authorized": false,
+ "publication_authorized": false,
+ "changed_files": ["src/lib/meta-inbox-consent.ts", "src/app/app/integraties/social-accounts.tsx", "tests/integrations.test.mts", "ops/instagram-publication.env.example"],
+ "new_files": ["tests/meta-publish-consent.test.mts", "ops/meta-publish-consent-local-release.json"]
+}
