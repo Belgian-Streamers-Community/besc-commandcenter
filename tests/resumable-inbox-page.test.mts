@@ -76,3 +76,11 @@ test('Inboxpagina’s: standaard uit weigert vóór transport en een onbekende c
  assert.throws(()=>createResumableInboxReader(config,transport),/disabled/);assert.equal(calls,0);
  await assert.rejects(createResumableInboxReader(config,transport,true).page(target,'fixture',{...initialInboxCheckpoint(target,'v25.0'),v:2} as unknown as InboxCheckpoint));assert.equal(calls,0);
 });
+
+test('paginatiefout logt alleen niet-geheime diagnose, nooit query, token of cursor', async () => {
+  const source = (await import('node:fs')).readFileSync('src/lib/resumable-inbox-page.ts', 'utf8');
+  const line = source.split('\n').find((l) => l.includes("event:'meta_inbox_pagination_invalid'"))!;
+  assert.ok(line, 'diagnoseregel aanwezig');
+  for (const forbidden of ['link.search,', 'link.href', 'result.paging.next', 'token', 'cursors?.after,', 'after:after']) assert.ok(!line.includes(forbidden), forbidden);
+  assert.match(line, /linkPath:/); assert.match(line, /expectedPath:/);
+});
