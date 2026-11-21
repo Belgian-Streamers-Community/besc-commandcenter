@@ -38,7 +38,11 @@ export function createResumableInboxReader(config:MetaInboxConfig,transport:type
    let after:string|null=null;
    if(result.paging?.next){
     after=cursor.parse(result.paging.cursors?.after);const link=new URL(result.paging.next);
-    if(link.origin!=='https://graph.facebook.com'||link.username||link.password||link.hash||link.pathname!=='/'+config.apiVersion+'/'+path||link.searchParams.get('after')!==after||t.used.includes(after)||after===t.after)fail('pagination_invalid');
+    if(link.origin!=='https://graph.facebook.com'||link.username||link.password||link.hash||link.pathname!=='/'+config.apiVersion+'/'+path||link.searchParams.get('after')!==after||t.used.includes(after)||after===t.after){
+     // Non-secret diagnostics only: no query string, token, cursor value or message data is logged.
+     console.warn(JSON.stringify({event:'meta_inbox_pagination_invalid',task:t.type,platform:target.platform,expectedPath:'/'+config.apiVersion+'/'+path,linkPath:/^[A-Za-z0-9_./-]{1,300}$/.test(link.pathname)?link.pathname:'[onverwacht]',origin:link.origin==='https://graph.facebook.com',credentials:Boolean(link.username||link.password),fragment:Boolean(link.hash),afterMatches:link.searchParams.get('after')===after,afterReused:t.used.includes(after)||after===t.after}));
+     fail('pagination_invalid');
+    }
    }
    for(const raw of result.data){
     if(t.type==='conversations'){
