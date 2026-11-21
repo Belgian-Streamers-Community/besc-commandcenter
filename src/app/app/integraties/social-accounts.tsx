@@ -6,6 +6,7 @@ import { FormModal } from "@/components/form-modal";
 import { requireActiveMembership } from "@/lib/auth-context";
 import { socialAccountStatuses, socialPlatformDefinitions, socialPlatforms } from "@/lib/social-connectors";
 import { metaConfiguration } from "@/lib/meta-integration";
+import { metaInboxConsentEnabled } from "@/lib/meta-inbox-consent";
 import { threadsConfiguration } from "@/lib/threads-integration";
 import { twitchConfiguration } from "@/lib/twitch-integration";
 import { youtubeConfiguration } from "@/lib/youtube-integration";
@@ -62,6 +63,7 @@ export default async function SocialAccountsSection({
   const accounts = (accountData ?? []) as SocialAccount[];
   const youtubeConfig = youtubeConfiguration();
   const metaConfig = metaConfiguration();
+  const inboxConsent = metaInboxConsentEnabled(process.env);
   const threadsConfig = threadsConfiguration();
   const twitchConfig = twitchConfiguration();
   const selected = accounts.find((item) => item.id === query.account);
@@ -85,6 +87,7 @@ export default async function SocialAccountsSection({
                   {account.platform === "youtube" && account.status !== "connected" && youtubeConfig.configured ? <Link href={`/app/integraties/social/youtube/start?account=${account.id}`}>Koppel YouTube</Link> : null}
                   {["facebook", "instagram"].includes(account.platform) && account.status === "connected" ? <form action={syncMetaAccount}><input type="hidden" name="id" value={account.id}/><button><RefreshCw size={13}/>Nu synchroniseren</button></form> : null}
                   {["facebook", "instagram"].includes(account.platform) && metaConfig.configured ? <Link href={`/app/integraties/social/meta/start?account=${account.id}`}>{account.status === "connected" ? "Opnieuw koppelen via Meta" : "Koppel via Meta"}</Link> : null}
+                  {["facebook", "instagram"].includes(account.platform) && metaConfig.configured && inboxConsent && account.status === "connected" ? <Link href={`/app/integraties/social/meta/start?account=${account.id}&rechten=inbox`}>Inboxrechten aanvragen via Meta</Link> : null}
                   {account.platform === "threads" && account.status === "connected" ? <form action={syncThreadsAccount}><input type="hidden" name="id" value={account.id}/><button><RefreshCw size={13}/>Nu synchroniseren</button></form> : null}
                   {account.platform === "threads" && account.status !== "connected" && threadsConfig.configured ? <Link href={`/app/integraties/social/threads/start?account=${account.id}`}>Koppel Threads</Link> : null}
                   {account.platform === "twitch" && account.status === "connected" ? <form action={syncTwitchAccount}><input type="hidden" name="id" value={account.id}/><button><RefreshCw size={13}/>Nu synchroniseren</button></form> : null}

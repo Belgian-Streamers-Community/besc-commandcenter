@@ -1,0 +1,50 @@
+{
+ "work_item": "stap2-meta-inbox-consent-local",
+ "base_commit": "afd86dfa29809e462a6b9db01d7a3c8ae9923d67",
+ "date": "2026-11-21",
+ "runtime_default": "off",
+ "switch": "BESC_META_INBOX_CONSENT_ENABLED",
+ "default_oauth_scopes_changed": false,
+ "optional_inbox_scopes": {
+  "facebook": [
+   "pages_messaging",
+   "pages_manage_metadata"
+  ],
+  "instagram": [
+   "instagram_manage_messages",
+   "pages_messaging",
+   "pages_manage_metadata"
+  ]
+ },
+ "comment_or_publication_scopes_added": false,
+ "migration_added": false,
+ "receive_activation_changed": false,
+ "reader_invoked_by_new_code": false,
+ "live_contract_verified": false,
+ "cloud_apply_authorized": false,
+ "server_deploy_authorized": false,
+ "activation_authorized": false,
+ "meta_consent_authorized": false,
+ "live_message_read_authorized": false,
+ "superseded_files": [
+  {
+   "file": "src/lib/meta-integration.ts",
+   "before_sha256_lf": "889c7a63b09d62a1b2131f67a8779a186ce3e14fe6fe08103547fabde4e6845a",
+   "sha256_lf": "e61fa2d4289bed8accaff19da454c4770953657aa8c356fbc58bdbbd128ade07"
+  },
+  {
+   "file": "src/app/app/integraties/social/meta/start/route.ts",
+   "before_sha256_lf": "3aa0c91914fb99b0ff3118da25cfedf37ca2a5170de79c8eea513a6fd9b60247",
+   "sha256_lf": "82133a199f8d66c97cd191c7300dd1af8abcf94859b8e94b0b90c032d8c4a945"
+  },
+  {
+   "file": "src/app/app/integraties/social/meta/callback/route.ts",
+   "before_sha256_lf": "3d923672cd4b5dcc752b3b79c6a68ef4ccb018e8e7c6c40a595b3131159c68f5",
+   "sha256_lf": "6ce5a62e1e3e791e701c7fbc45ad759eb384be13256eeeb7065575ad367e789c"
+  }
+ ],
+ "new_files": [
+  "src/lib/meta-inbox-consent.ts",
+  "tests/meta-inbox-consent.test.mts"
+ ]
+}

@@ -1,6 +1,7 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { inspectMetaToken } from "@/lib/meta-token-diagnostics";
+import { metaConsentRequiredScopes, metaConsentScopes, type MetaConsentCapability } from "@/lib/meta-inbox-consent";
 import { fetchFacebookInsightMeasurements, instagramInsightParameters, MetaApiError, type MetaInsight } from "@/lib/meta-insights";
 
 export type MetaPlatform = "facebook" | "instagram";
@@ -9,15 +10,15 @@ const facebookScopes = ["business_management", "pages_show_list", "pages_read_en
 const facebookInsightScopes = [...facebookScopes, "read_insights"];
 const instagramScopes = [...facebookScopes, "instagram_basic", "instagram_manage_insights"];
 
-export function metaScopes(platform: MetaPlatform) {
-  return platform === "instagram" ? instagramScopes : facebookInsightScopes;
+export function metaScopes(platform: MetaPlatform, capability: MetaConsentCapability = "stats") {
+  return metaConsentScopes(platform, platform === "instagram" ? instagramScopes : facebookInsightScopes, capability);
 }
 
-export function verifyMetaToken(accessToken: string, platform: MetaPlatform) {
-  const requiredScopes = platform === "instagram"
+export function verifyMetaToken(accessToken: string, platform: MetaPlatform, capability: MetaConsentCapability = "stats") {
+  const statsScopes = platform === "instagram"
     ? ["instagram_basic", "instagram_manage_insights", "pages_read_engagement"]
     : ["pages_read_engagement", "read_insights"];
-  return inspectMetaToken(accessToken, metaConfiguration(platform), requiredScopes);
+  return inspectMetaToken(accessToken, metaConfiguration(platform), metaConsentRequiredScopes(platform, statsScopes, capability));
 }
 
 export function metaConfiguration(platform: MetaPlatform = "facebook") {
