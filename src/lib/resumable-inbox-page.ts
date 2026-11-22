@@ -11,6 +11,12 @@ export function initialInboxCheckpoint(target:MetaInboxSelection,apiVersion:stri
  const queue:z.infer<typeof task>[]=target.kind==='direct'?[{type:'conversations',id:target.page_id,thread:target.page_id,participants:[],expand:false,after:null,used:[]}]:target.resources.map(id=>({type:'comments',id,thread:id,participants:[],expand:true,after:null,used:[]}));
  return inboxCheckpoint.parse({v:1,api_version:apiVersion,queue,seen:queue.map(key)});
 }
+// Meta may write its app default Graph version into paging.next (seen live: request v23.0, link v26.0).
+// The link is never fetched; the next request is rebuilt with the configured version and the
+// validated cursor. Only the version segment may differ; the edge path must match exactly.
+export function sameEdge(pathname:string,path:string){
+ const m=/^\/v\d{1,3}\.\d{1,3}\/(.+)$/.exec(pathname);return m!==null&&m[1]===path;
+}
 export function createResumableInboxReader(config:MetaInboxConfig,transport:typeof fetch,enabled=false){
  const factory=createMetaInboxSessionFactory(config,transport,enabled);
  return{async page(selection:MetaInboxSelection,token:string,checkpoint:InboxCheckpoint,signal?:AbortSignal):Promise<InboxPage>{
@@ -38,7 +44,7 @@ export function createResumableInboxReader(config:MetaInboxConfig,transport:type
    let after:string|null=null;
    if(result.paging?.next){
     after=cursor.parse(result.paging.cursors?.after);const link=new URL(result.paging.next);
-    if(link.origin!=='https://graph.facebook.com'||link.username||link.password||link.hash||link.pathname!=='/'+config.apiVersion+'/'+path||link.searchParams.get('after')!==after||t.used.includes(after)||after===t.after){
+    if(link.origin!=='https://graph.facebook.com'||link.username||link.password||link.hash||!sameEdge(link.pathname,path)||link.searchParams.get('after')!==after||t.used.includes(after)||after===t.after){
      // Non-secret diagnostics only: no query string, token, cursor value or message data is logged.
      console.warn(JSON.stringify({event:'meta_inbox_pagination_invalid',task:t.type,platform:target.platform,expectedPath:'/'+config.apiVersion+'/'+path,linkPath:/^[A-Za-z0-9_./-]{1,300}$/.test(link.pathname)?link.pathname:'[onverwacht]',origin:link.origin==='https://graph.facebook.com',credentials:Boolean(link.username||link.password),fragment:Boolean(link.hash),afterMatches:link.searchParams.get('after')===after,afterReused:t.used.includes(after)||after===t.after}));
      fail('pagination_invalid');
