@@ -28,7 +28,8 @@ test("mailinglijsten registreren toestemming en uitschrijvingen", () => {
 test("nieuwsbrieven beperken Gmail-ontvangers en gebruiken BCC", () => {
   assert.match(migration, /recipient_count >= 0 and recipient_count <= 100/);
   assert.match(newsletterActions, /recipients\.length > 100/);
-  assert.match(newsletterActions, /bcc: recipients/);
+  // BCC blijft de standaard; bij verzending per ontvanger bevat het concept geen BCC-lijst.
+  assert.match(newsletterActions, /bcc: newsletterPerRecipientEnabled\(process\.env\) \? \[\] : recipients/);
   assert.match(gmail, /`Bcc:/);
 });
 

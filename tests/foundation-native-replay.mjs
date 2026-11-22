@@ -83,7 +83,17 @@ for (const name of names) {
 }
 const effects = JSON.parse(sql(readFileSync(new URL("../ops/foundation-effects-catalog.sql", import.meta.url), "utf8")));
 assert.equal(effects.read_only, "on");
-assert.equal(effects.tables.length,223); // All 212 historical tables plus eleven private CRM tables.
+assert.equal(effects.tables.length,224); // All 212 historical tables plus eleven private CRM tables and one newsletter delivery table.
+{
+ const table=effects.tables.find(t=>t.schema==='private'&&t.name==='newsletter_deliveries');assert.ok(table?.rls,'newsletter_deliveries has RLS');
+ for(const role of ['anon','authenticated','service_role'])assert.ok(Object.values(table.grants[role]).every(v=>v===false),`newsletter_deliveries has no direct ${role} grants`);
+ for(const [schema,name,definer]of [['public','newsletter_delivery_server',false],['private','newsletter_delivery_server',true],['private','newsletter_delivery_prepare',true],['private','newsletter_delivery_claim',true],['private','newsletter_delivery_record',true],['private','newsletter_delivery_finish',true],['private','newsletter_delivery_mark_stale',true],['private','newsletter_delivery_summary',true]]){
+  const fn=effects.functions.find(f=>f.schema===schema&&f.name===name);assert.ok(fn,`${schema}.${name} exists`);assert.equal(fn.security_definer,definer);
+  assert.ok(fn.settings?.includes('search_path=""'));assert.equal(fn.anon_execute,false);assert.equal(fn.authenticated_execute,false);assert.equal(fn.service_role_execute,true);
+ }
+ const unsubscribe=effects.functions.find(f=>f.schema==='public'&&f.name==='newsletter_one_click_unsubscribe');
+ assert.ok(unsubscribe?.security_definer&&unsubscribe.settings?.includes('search_path=""'));assert.equal(unsubscribe.anon_execute,true,'public one-click unsubscribe by token');
+}
 const crmTables=['crm_connections','crm_connection_access','crm_runs','crm_receipts','crm_incoming','crm_contact_points','crm_contact_decisions','crm_thread_links','crm_outbox','crm_email_bindings','crm_events'];
 assert.deepEqual(effects.tables.filter(t=>t.schema==='private'&&t.name.startsWith('crm_')).map(t=>t.name).sort(),crmTables.toSorted());
 for(const name of crmTables){const table=effects.tables.find(t=>t.schema==='private'&&t.name===name);assert.ok(table?.rls);for(const role of ['anon','authenticated','service_role'])assert.ok(Object.values(table.grants[role]).every(v=>v===false));}
