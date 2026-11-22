@@ -84,3 +84,23 @@ test('paginatiefout logt alleen niet-geheime diagnose, nooit query, token of cur
   for (const forbidden of ['link.search,', 'link.href', 'result.paging.next', 'token', 'cursors?.after,', 'after:after']) assert.ok(!line.includes(forbidden), forbidden);
   assert.match(line, /linkPath:/); assert.match(line, /expectedPath:/);
 });
+
+test('Inboxpagina’s: een andere Graph-versie in paging.next wordt aanvaard, het pad niet', async () => {
+  const {sameEdge} = await import('../src/lib/resumable-inbox-page.ts');
+  assert.equal(sameEdge('/v26.0/101177345535710/conversations', '101177345535710/conversations'), true);
+  assert.equal(sameEdge('/v23.0/101177345535710/conversations', '101177345535710/conversations'), true);
+  for (const bad of ['/v26.0/999/conversations', '/101177345535710/conversations', '/v26.0/101177345535710/conversations/x', '/vX.0/101177345535710/conversations', '/v26.0//101177345535710/conversations', '/v26.0/101177345535710/messages'])
+    assert.equal(sameEdge(bad, '101177345535710/conversations'), false, bad);
+  // End-to-end: provider links carry another version; the reader still requests its own configured version.
+  const mock = mockInboxProvider(target); const requested: string[] = [];
+  const transport: typeof fetch = async (input, init) => {
+    requested.push(new URL(String(input)).pathname);
+    const response = await mock.transport(input, init); const body = await response.json();
+    if (body?.paging?.next) body.paging.next = body.paging.next.replace('/v25.0/', '/v26.0/');
+    return json(body);
+  };
+  let checkpoint = initialInboxCheckpoint(target, 'v25.0'); let pages = 0;
+  while (checkpoint.queue.length && pages < 20) { const page = await createResumableInboxReader(config, transport, true).page(target, 'fixture', checkpoint); checkpoint = JSON.parse(JSON.stringify(page.next)); pages++; }
+  assert.equal(checkpoint.queue.length, 0);
+  assert.ok(requested.every((p) => p.startsWith('/v25.0/')), 'alle aanvragen gebruiken de geconfigureerde versie');
+});
