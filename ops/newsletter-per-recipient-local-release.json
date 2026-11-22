@@ -1,0 +1,24 @@
+{
+  "work_item": "stap2-newsletter-per-recipient",
+  "base_commit": "afd465b1a9cecb1105decc37ba80bb2e5264d921",
+  "date": "2026-11-22",
+  "migration": {
+    "file": "20261122170000_newsletter_per_recipient_delivery.sql",
+    "sha256_lf": "57fc49e9d893703c96d79abb5b510b684ef4056eaf0fd1d798c16be2aa7e6517"
+  },
+  "new_private_tables": 1,
+  "new_functions": 9,
+  "changed_constraints": ["public.newsletters.newsletters_status_check (adds sending, attention)"],
+  "runtime_default": "off",
+  "switch": "BESC_NEWSLETTER_PER_RECIPIENT_ENABLED",
+  "last_verified_cloud_history": 161,
+  "expected_history_after_separate_apply": 162,
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "activation_authorized": false,
+  "send_authorized": false,
+  "oauth_scopes_changed": false,
+  "automatic_scheduler_added": false,
+  "historical_rows_backfilled": false,
+  "legacy_bcc_path_preserved_when_switch_off": true
+}

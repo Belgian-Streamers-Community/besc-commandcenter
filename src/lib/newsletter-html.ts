@@ -52,6 +52,13 @@ function textBlocks(value: string) {
   return markdown.parse(value.trim(),{async:false});
 }
 
+// Exacte voettekstfragment; ook gebruikt om de goedgekeurde snapshot per ontvanger te personaliseren.
+export function newsletterUnsubscribeFragment(url?: string | null) {
+  return url
+    ? `<a href="${escapeHtml(url)}" style="color:#666;text-decoration:underline">Uitschrijven</a>`
+    : "Antwoord op deze e-mail met ‘uitschrijven’ om geen berichten meer te ontvangen.";
+}
+
 export function newsletterHtml(input: {
   title: string;
   preheader?: string | null;
@@ -69,9 +76,7 @@ export function newsletterHtml(input: {
   const organization = escapeHtml(input.organizationName?.trim() || "BESC vzw");
   const preheader = escapeHtml(input.preheader?.trim() || input.title);
   const alt = escapeHtml(input.heroImageAlt?.trim() || input.title);
-  const unsubscribe = input.unsubscribeUrl
-    ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:#666;text-decoration:underline">Uitschrijven</a>`
-    : "Antwoord op deze e-mail met ‘uitschrijven’ om geen berichten meer te ontvangen.";
+  const unsubscribe = newsletterUnsubscribeFragment(input.unsubscribeUrl);
 
   return `<!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title></head>

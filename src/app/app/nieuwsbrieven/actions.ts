@@ -8,6 +8,7 @@ import { googleGmailConfiguration, saveGmailDraft, sendGmailDraft } from "@/lib/
 import { isManager } from "@/lib/permissions";
 import { unresolvedEmailVariables } from "@/lib/email-templates";
 import { newsletterHtml, newsletterVariants, safeNewsletterImageUrl } from "@/lib/newsletter-html";
+import { newsletterPerRecipientEnabled } from "@/lib/newsletter-delivery";
 
 function managerPath(context: Awaited<ReturnType<typeof requireActiveMembership>>, path: string) {
   if (!isManager(context.membership)) redirect(`${path}?fout=geen-toegang`);
@@ -223,7 +224,8 @@ export async function saveNewsletter(formData: FormData) {
     const draft = await saveGmailDraft({
       draftId: currentDraftId,
       to: [sender],
-      bcc: recipients,
+      // Bij verzending per ontvanger is het Gmail-concept alleen een voorbeeld voor de afzender (geen BCC-lijst).
+      bcc: newsletterPerRecipientEnabled(process.env) ? [] : recipients,
       subject: parsed.data.subject,
       body,
       html,
@@ -257,6 +259,8 @@ export async function sendApprovedNewsletter(formData: FormData) {
   const { data: newsletter } = await context.supabase.from("newsletters").select("*")
     .eq("organization_id", context.membership.organization_id).eq("id", parsed.data.id).maybeSingle();
   if (!newsletter || newsletter.status !== "approved" || !newsletter.gmail_draft_id) redirect(`${path}?fout=niet-goedgekeurd`);
+  // De BCC-verzending is uitgeschakeld zodra verzending per ontvanger actief is.
+  if (newsletterPerRecipientEnabled(process.env)) redirect(`${path}?fout=bcc-uitgeschakeld`);
   let sent: { id: string; threadId?: string };
   try {
     sent = await sendGmailDraft(newsletter.gmail_draft_id);
@@ -281,4 +285,47 @@ export async function sendApprovedNewsletter(formData: FormData) {
   revalidatePath("/app/goedkeuringen");
   revalidatePath(path);
   redirect(`${path}?succes=verzonden`);
+}
+
+async function perRecipientAction(formData: FormData, run: (org: string, id: string, actor: string) => Promise<string>) {
+  const parsed = z.object({ id: z.string().uuid() }).safeParse(Object.fromEntries(formData));
+  if (!parsed.success) redirect("/app/nieuwsbrieven?fout=verzenden");
+  const context = await requireActiveMembership();
+  const path = `/app/nieuwsbrieven/${parsed.data.id}`;
+  managerPath(context, path);
+  if (!newsletterPerRecipientEnabled(process.env)) redirect(`${path}?fout=per-ontvanger-uit`);
+  let destination: string;
+  try {
+    destination = `${path}?${await run(context.membership.organization_id, parsed.data.id, context.user.id)}`;
+  } catch (error) {
+    const code = error instanceof Error ? error.message.replace(/[^a-z_]/g, "").slice(0, 60) : "onbekend";
+    destination = `${path}?fout=${code || "verzenden"}`;
+  }
+  revalidatePath("/app/nieuwsbrieven");
+  revalidatePath(path);
+  redirect(destination);
+}
+
+export async function prepareNewsletterDeliveryAction(formData: FormData) {
+  return perRecipientAction(formData, async (org, id, actor) => {
+    const { prepareNewsletterDelivery } = await import("@/lib/newsletter-delivery-runtime");
+    const r = await prepareNewsletterDelivery(org, id, actor);
+    return `succes=voorbereid&ontvangers=${Number(r.recipients) || 0}`;
+  });
+}
+
+export async function sendNewsletterBatchAction(formData: FormData) {
+  return perRecipientAction(formData, async (org, id, actor) => {
+    const { sendNewsletterBatch } = await import("@/lib/newsletter-delivery-runtime");
+    const r = await sendNewsletterBatch(org, id, actor);
+    return `succes=reeks&verzonden=${r.sent}&geweigerd=${r.rejected}&onzeker=${r.unknown}`;
+  });
+}
+
+export async function markStaleNewsletterDeliveriesAction(formData: FormData) {
+  return perRecipientAction(formData, async (org, id, actor) => {
+    const { markStaleNewsletterDeliveries } = await import("@/lib/newsletter-delivery-runtime");
+    const r = await markStaleNewsletterDeliveries(org, id, actor);
+    return `succes=hersteld&gemarkeerd=${Number(r.marked) || 0}`;
+  });
 }

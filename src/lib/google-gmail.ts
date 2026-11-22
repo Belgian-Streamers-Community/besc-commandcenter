@@ -27,13 +27,19 @@ export function gmailRawMessage(input: {
   subject: string;
   body: string;
   html?: string;
+  extraHeaders?: Record<string, string>;
 }) {
+  const extra = Object.entries(input.extraHeaders ?? {}).map(([name, value]) => {
+    if (!/^[A-Za-z][A-Za-z0-9-]{0,60}$/.test(name)) throw new Error("Ongeldige mailheader.");
+    return `${name}: ${cleanHeader(value)}`;
+  });
   const headers = [
     `From: ${cleanHeader(input.sender)}`,
     `To: ${input.to.map(cleanHeader).join(", ")}`,
     input.cc?.length ? `Cc: ${input.cc.map(cleanHeader).join(", ")}` : null,
     input.bcc?.length ? `Bcc: ${input.bcc.map(cleanHeader).join(", ")}` : null,
     `Subject: ${cleanHeader(input.subject)}`,
+    ...extra,
     "MIME-Version: 1.0",
   ].filter(Boolean);
   const plainBody = input.body.replace(/\r?\n/g, "\r\n");
@@ -57,6 +63,11 @@ async function delegatedGmailToken(signal?:AbortSignal) {
   return googleAccessToken({ scopes: [gmailScope],signal });
 }
 
+export class GmailHttpError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) { super(message); this.name = "GmailHttpError"; this.status = status; }
+}
+
 async function gmailJson<T>(path: string, init: RequestInit) {
   const token = await delegatedGmailToken(init.signal??undefined);
   const response = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/${path}`, {
@@ -69,7 +80,7 @@ async function gmailJson<T>(path: string, init: RequestInit) {
     cache: "no-store",
   });
   const result = await response.json() as T & { error?: { message?: string } };
-  if (!response.ok) throw new Error(result.error?.message || `Gmail API-fout (${response.status}).`);
+  if (!response.ok) throw new GmailHttpError(result.error?.message || `Gmail API-fout (${response.status}).`, response.status);
   return result;
 }
 
@@ -94,6 +105,15 @@ export async function sendGmailDraft(draftId: string,signal?:AbortSignal) {
   return gmailJson<{ id: string; threadId?: string }>("drafts/send", {
     method: "POST",
     body: JSON.stringify({ id: draftId }),
+    signal,
+  });
+}
+
+// Directe verzending van één volledig opgebouwd bericht (scope gmail.compose staat dit toe).
+export async function sendGmailMessage(raw: string, signal?: AbortSignal) {
+  return gmailJson<{ id: string; threadId?: string }>("messages/send", {
+    method: "POST",
+    body: JSON.stringify({ raw }),
     signal,
   });
 }
