@@ -33,7 +33,7 @@ jobs:
           IMAGE_SHA: ${{ inputs.image_sha }}
         run: |
           set -euo pipefail
-          IMAGE="ghcr.io/missrinam80-besc/besc-commandcenter:$IMAGE_SHA"
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}:$IMAGE_SHA"
           docker pull "$IMAGE"
           docker image inspect --format '{{.Id}}' "$IMAGE" > image-id.txt
           docker save "$IMAGE" | gzip -1 > dev-image.tar.gz
