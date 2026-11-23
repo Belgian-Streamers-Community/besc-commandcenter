@@ -154,7 +154,7 @@ const helpSearchByActive: Record<string, string> = {
 };
 
 function helpHref(active: string) {
-  if (["Rechtencontrole", "Gebruikers & toegang"].includes(active)) return "https://github.com/missrinam80-besc/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md";
+  if (["Rechtencontrole", "Gebruikers & toegang"].includes(active)) return "https://github.com/Belgian-Streamers-Community/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md";
   const query = helpSearchByActive[active] || active || "Start hier";
   return `/app/kennisbank?zoeken=${encodeURIComponent(query)}`;
 }

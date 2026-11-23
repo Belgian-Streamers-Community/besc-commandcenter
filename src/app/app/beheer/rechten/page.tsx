@@ -150,7 +150,7 @@ export default async function AccessControlPage({
         </div>
         <div className="project-actions">
           <Link href="/app/beheer/gebruikers">Gebruikers</Link>
-          <a href="https://github.com/missrinam80-besc/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md" target="_blank" rel="noreferrer">Wiki</a>
+          <a href="https://github.com/Belgian-Streamers-Community/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md" target="_blank" rel="noreferrer">Wiki</a>
           <Link className="primary" href="/app/beheer/rechten?nieuw=rol"><Plus size={16}/>Rolprofiel toevoegen</Link>
         </div>
       </header>

@@ -57,7 +57,7 @@ export default async function UsersPage({
     <AppShell active="Gebruikers & toegang" role="Admin">
       <header className="topbar module-top">
         <div><p>BEHEER</p><h1>Gebruikers en toegang</h1></div>
-        <div className="project-actions"><Link href="/app/beheer/rechten">Rechtencontrole</Link><a href="https://github.com/missrinam80-besc/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md" target="_blank" rel="noreferrer">Wiki</a><span className="badge">{members.length} accounts</span></div>
+        <div className="project-actions"><Link href="/app/beheer/rechten">Rechtencontrole</Link><a href="https://github.com/Belgian-Streamers-Community/besc-commandcenter/blob/main/docs/wiki/Rollen-en-profielen.md" target="_blank" rel="noreferrer">Wiki</a><span className="badge">{members.length} accounts</span></div>
       </header>
       <div className="module-body">
         <p className="lead">

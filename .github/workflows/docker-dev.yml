@@ -8,7 +8,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: missrinam80-besc/besc-commandcenter
 
 jobs:
   build-and-push:
@@ -31,6 +30,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bepaal imagenaam (GHCR vereist kleine letters)
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Validate DEV build configuration
         shell: bash
@@ -67,5 +70,5 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           tags: |
-            ghcr.io/missrinam80-besc/besc-commandcenter:dev
-            ghcr.io/missrinam80-besc/besc-commandcenter:${{ github.sha }}
+            ${{ steps.image.outputs.name }}:dev
+            ${{ steps.image.outputs.name }}:${{ github.sha }}
