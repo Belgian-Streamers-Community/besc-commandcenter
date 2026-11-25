@@ -155,3 +155,22 @@ test('new review functions preserve invoker rights and expose no anonymous execu
   const rows=(await f.db.query<{proname:string;prosecdef:boolean;anon:boolean}>(`select p.proname,p.prosecdef,has_function_privilege('anon',p.oid,'execute') anon from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='private' and p.proname in ('social_review_snapshot','guard_social_approval','sync_social_approval','guard_social_review_source','guard_social_review_variant')`)).rows;
   assert.equal(rows.length,5);for(const row of rows){assert.equal(row.prosecdef,false,row.proname);assert.equal(row.anon,false,row.proname);}
 });
+test('B2: resultaatvelden na goedkeuring (postlink, statistieken, notities) vragen geen nieuwe goedkeuring; tekst en afbeelding wel', async () => {
+  const v=await variant(); const id=await submit(); await f.actor(f.ids.chair); await decide(id);
+  assert.equal(await status(),'approved');
+  await f.actor(f.ids.admin);
+  await f.db.exec(`update public.social_post_variants set status='published',published_at=now(),publication_url='https://www.facebook.com/fictief/1',stat_reach=120,stat_likes=0,stat_avg_watch_seconds=3.5,stats_measured_at=now(),notes='Afgelezen in Metricool' where id=${q(v)}`);
+  const row=(await f.db.query<{status:string;stat_reach:number;stat_likes:number}>(`select status,stat_reach,stat_likes from public.social_post_variants where id=${q(v)}`)).rows[0];
+  assert.equal(row.status,'published'); assert.equal(row.stat_reach,120); assert.equal(row.stat_likes,0);
+  assert.equal(await status(),'approved');
+  await f.db.exec(`update public.social_post_variants set image_url='https://example.invalid/visual.png' where id=${q(v)}`);
+  assert.equal(await status(),'review');
+  assert.equal((await f.db.query<{status:string}>(`select status from public.social_post_variants where id=${q(v)}`)).rows[0].status,'review');
+});
+test('B2: kanaalvelden worden in de database begrensd', async () => {
+  const v=await variant();
+  await denied(`update public.social_post_variants set stat_reach=-1 where id=${q(v)}`,/check constraint/);
+  await denied(`update public.social_post_variants set image_url='javascript:alert(1)' where id=${q(v)}`,/check constraint/);
+  await denied(`update public.social_post_variants set platform='MySpace' where id=${q(v)}`,/check constraint/);
+  await f.db.exec(`insert into public.social_post_variants(organization_id,social_post_id,platform,created_by) values(${q(f.ids.org)},${q(post)},'Google Business',${q(f.ids.admin)})`);
+});

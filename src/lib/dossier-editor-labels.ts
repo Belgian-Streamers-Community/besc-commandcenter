@@ -13,3 +13,7 @@ Object.assign(choices,{equipment:"Materiaal",computer:"Computer",streaming:"Stre
 Object.assign(labels,{document_id:"Document"});
 
 Object.assign(choices,{image:"Afbeelding",folder:"Map",application:"Toepassing"});
+
+// Social-postfiche per kanaal (B2).
+Object.assign(labels,{copy:"Tekst",image_url:"Link naar afbeelding of video",publication_url:"Link naar de gepubliceerde post",planning_url:"Planninglink (bv. Metricool)",canva_url:"Canva-link",scheduled_at:"Publicatiemoment",stat_reach:"Bereik",stat_views:"Weergaven",stat_likes:"Likes",stat_comments:"Reacties",stat_shares:"Shares",stat_saves:"Opgeslagen",stat_link_clicks:"Linkkliks",stat_video_views:"Videoweergaven",stat_avg_watch_seconds:"Gem. kijktijd (seconden)",stat_watch_minutes:"Totale kijktijd (minuten)",stats_measured_at:"Afgelezen op"});
+Object.assign(choices,{copy_needed:"Tekst nodig",visual_needed:"Visual nodig",scheduled:"Ingepland",published:"Gepubliceerd",repurpose:"Hergebruiken",teaser:"Teaser",publication:"Publicatie",reminder:"Reminder",recap:"Recap",clip:"Clip",story:"Story",carousel:"Carousel"});

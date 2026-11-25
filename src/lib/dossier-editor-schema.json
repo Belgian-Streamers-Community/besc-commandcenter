@@ -2623,7 +2623,21 @@
         "type": "text",
         "required": false,
         "default": "Discord",
-        "options": [],
+        "options": [
+          "X",
+          "Facebook",
+          "Instagram",
+          "Threads",
+          "LinkedIn",
+          "Google Business",
+          "TikTok",
+          "YouTube",
+          "Discord",
+          "Twitch",
+          "Blogger",
+          "Website",
+          "Nieuwsbrief"
+        ],
         "reference": null
       },
       {
@@ -4080,14 +4094,6 @@
         "reference": null
       },
       {
-        "name": "platform",
-        "type": "text",
-        "required": false,
-        "default": "Discord",
-        "options": [],
-        "reference": null
-      },
-      {
         "name": "status",
         "type": "text",
         "required": false,
@@ -4104,31 +4110,7 @@
         "reference": null
       },
       {
-        "name": "copy",
-        "type": "text",
-        "required": false,
-        "default": null,
-        "options": [],
-        "reference": null
-      },
-      {
         "name": "notes",
-        "type": "text",
-        "required": false,
-        "default": null,
-        "options": [],
-        "reference": null
-      },
-      {
-        "name": "hashtags",
-        "type": "text",
-        "required": false,
-        "default": null,
-        "options": [],
-        "reference": null
-      },
-      {
-        "name": "call_to_action",
         "type": "text",
         "required": false,
         "default": null,
@@ -4176,14 +4158,6 @@
         "reference": null
       },
       {
-        "name": "publication_url",
-        "type": "text",
-        "required": false,
-        "default": null,
-        "options": [],
-        "reference": null
-      },
-      {
         "name": "canva_url",
         "type": "text",
         "required": false,
@@ -4198,17 +4172,6 @@
         "default": null,
         "options": [],
         "reference": "profiles"
-      },
-      {
-        "name": "bundle_kind",
-        "type": "text",
-        "required": false,
-        "default": "single",
-        "options": [
-          "single",
-          "bundle"
-        ],
-        "reference": null
       }
     ],
     "social_post_variants": [
@@ -4218,15 +4181,16 @@
         "required": true,
         "default": null,
         "options": [
-          "Discord",
-          "Twitch",
-          "YouTube",
-          "TikTok",
-          "Instagram",
-          "Facebook",
           "X",
+          "Facebook",
+          "Instagram",
           "Threads",
           "LinkedIn",
+          "Google Business",
+          "TikTok",
+          "YouTube",
+          "Discord",
+          "Twitch",
           "Blogger",
           "Website",
           "Nieuwsbrief"
@@ -4268,8 +4232,112 @@
         "reference": null
       },
       {
+        "name": "image_url",
+        "type": "text",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
         "name": "publication_url",
         "type": "text",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_reach",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_views",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_likes",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_comments",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_shares",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_saves",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_link_clicks",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_video_views",
+        "type": "integer",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_avg_watch_seconds",
+        "type": "numeric(10,1)",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stat_watch_minutes",
+        "type": "numeric(12,1)",
+        "required": false,
+        "default": null,
+        "options": [],
+        "reference": null
+      },
+      {
+        "name": "stats_measured_at",
+        "type": "timestamptz",
         "required": false,
         "default": null,
         "options": [],

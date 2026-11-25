@@ -11,7 +11,7 @@ const native=createRequire(import.meta.url),cache:Record<string,Record<string,un
 function load(file:string):Record<string,unknown>{
  if(cache[file])return cache[file];
  const compiled={exports:{} as Record<string,unknown>};
- const require=(name:string):unknown=>name==="./image-link-preview"?{ImageLinkPreview:()=>null}:name==="next/link"?{default:({children,...props}:{children:React.ReactNode})=>React.createElement("a",props,children)}:name==="@/lib/auth-context"?{requirePermission:()=>{throw Error("not needed in this fixture");}}:name==="./asset-planning"?load("src/components/asset-planning.tsx"):name==="./rich-text-field"?load("src/components/rich-text-field.tsx"):name==="./dossier-workspace"?{DossierWorkspace:()=>null}:name==="next/navigation"?{useRouter:()=>({push(){},refresh(){}})}:name==="@/lib/format"?format:name.endsWith(".json")?native(new URL(`../src/lib/${name.replace('./','')}`,import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,"$1")):name.startsWith("@/lib/")?load(`src/lib/${name.slice(6)}.ts`):name.startsWith("./")?load(`src/lib/${name.slice(2).replace(/\.ts$/,"")}.ts`):native(name);
+ const require=(name:string):unknown=>name==="./image-link-preview"?{ImageLinkPreview:()=>null}:name==="next/link"?{default:({children,...props}:{children:React.ReactNode})=>React.createElement("a",props,children)}:name==="@/lib/auth-context"?{requirePermission:()=>{throw Error("not needed in this fixture");}}:name==="./asset-planning"?load("src/components/asset-planning.tsx"):name==="./social-post-editor"?load("src/components/social-post-editor.tsx"):name==="./rich-text-field"?load("src/components/rich-text-field.tsx"):name==="./dossier-workspace"?{DossierWorkspace:()=>null}:name==="next/navigation"?{useRouter:()=>({push(){},refresh(){}})}:name==="@/lib/format"?format:name.endsWith(".json")?native(new URL(`../src/lib/${name.replace('./','')}`,import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,"$1")):name.startsWith("@/lib/")?load(`src/lib/${name.slice(6)}.ts`):name.startsWith("./")?load(`src/lib/${name.slice(2).replace(/\.ts$/,"")}.ts`):native(name);
  runInNewContext(ts.transpileModule(readFileSync(file,"utf8"),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText,{module:compiled,exports:compiled.exports,require,URL});
  return cache[file]=compiled.exports;
 }
@@ -202,7 +202,21 @@ test("Alle 22 editors hebben één formulier, één opslaanknop en bereikbare pa
   for(const part of cfg.collections)assert.ok(cfg.tabs.some(tab=>tab.id===part.tab),`${kind}.${part.table}`);
   const html=renderToStaticMarkup(React.createElement(Component,{kind,id,mode:"create",cancelHref:"/app",permissions:{}}));
   assert.equal((html.match(/<form /g)||[]).length,1,kind);assert.equal((html.match(/type="submit"/g)||[]).length,1,kind);
-  assert.match(html,/type="submit" disabled=""/);assert.equal((html.match(/role="tabpanel"/g)||[]).length,kind==="inbox"?0:cfg.tabs.length,kind);
+  assert.match(html,/type="submit" disabled=""/);assert.equal((html.match(/role="tabpanel"/g)||[]).length,kind==="inbox"?0:kind==="social"?cfg.tabs.length-1:cfg.tabs.length,kind);
   if(kind==="inbox"){assert.doesNotMatch(html,/role="tab(list)?"/);for(const field of cfg.fields)assert.ok(html.includes(`id="${field}-${id}"`),`inbox.${field}`);}
  }
+});
+
+test("B2: social-postfiche krijgt een tabblad per gekozen kanaal en een tabblad Statistieken",()=>{
+ const Component=load("src/components/dossier-editor.tsx").DossierEditor as React.ComponentType<Record<string,unknown>>;
+ const record={id,title:"TESTFIXTURE social",post_type:"publication",status:"idea",deleted_at:null};
+ const variants=[{id:"11111111-1111-4111-8111-111111111111",platform:"Twitch",status:"idea",copy:"Live!"},{id:"22222222-2222-4222-8222-222222222222",platform:"LinkedIn",status:"idea",copy:"Tekst voor LinkedIn",image_url:"https://example.invalid/a.png",stat_likes:0}];
+ const html=renderToStaticMarkup(React.createElement(Component,{kind:"social",id,mode:"edit",cancelHref:"/app",record,parts:{social_post_variants:variants},permissions:{social_post_variants:true}}));
+ const tabs=Array.from(html.matchAll(/role="tab"[^>]*>([^<]+)</g),m=>m[1]);
+ assert.deepEqual(tabs,["Algemeen","LinkedIn","Twitch","Statistieken","Gekoppelde dossiers","Documenten &amp; koppelingen"]);
+ assert.match(html,/Tekst voor LinkedIn<\/textarea>/);
+ assert.match(html,/Link naar afbeelding of video/);assert.match(html,/Link naar de gepubliceerde post/);
+ assert.match(html,/Bereik/);assert.match(html,/Afgelezen op/);assert.match(html,/Videoweergaven/);
+ assert.match(html,/Google Business/,"kanaalkeuze toont alle kanalen");
+ assert.doesNotMatch(html,/Dit onderdeel bevat weergaven/);
 });

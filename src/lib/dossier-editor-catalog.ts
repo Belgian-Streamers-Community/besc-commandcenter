@@ -1,11 +1,14 @@
 import {eventDossierTabs} from "./event-dossier-tabs";
 import {projectTabs,campaignTabs,sponsorTabs,communityTabs} from "./contact-dossier-tabs";
+import {socialStatFields} from "./social-post-channels";
 
 export type EditorTab={id:string;label:string};
 export type EditorCollection={table:string;label:string;tab:string;fields:string[];parentField:string;key?:string;entityField?:string;entityValue?:string;capability?:string;singleton?:boolean;through?:boolean};
 export type EditorConfig={table:string;label:string;path:string;capability:string;entity?:string;tabs:readonly EditorTab[];fields:string[];collections:EditorCollection[]};
 const fields=(s:string)=>s.split(" ").filter(Boolean);
 const commonTabs=[{id:"algemeen",label:"Algemeen"},{id:"planning",label:"Planning & opvolging"},{id:"dossiers",label:"Gekoppelde dossiers"},{id:"documenten",label:"Documenten & koppelingen"}] as const;
+// Social post: één tabblad per gekozen kanaal (afgeleid van de kanaalvarianten) en een tabblad Statistieken.
+export const socialTabs=[{id:"algemeen",label:"Algemeen"},{id:"kanalen",label:"Kanalen"},{id:"statistieken",label:"Statistieken"},{id:"dossiers",label:"Gekoppelde dossiers"},{id:"documenten",label:"Documenten & koppelingen"}] as const;
 const collection=(table:string,label:string,tab:string,parentField:string,columns:string,extra:Partial<EditorCollection>={}):EditorCollection=>({table,label,tab,parentField,fields:fields(columns),...extra});
 const links=(entity:string):EditorCollection[]=>[
   collection("record_links","Bronlinks","documenten","entity_id","document_id label url link_type position",{entityField:"entity_type",entityValue:entity}),
@@ -63,8 +66,8 @@ export const dossierEditorCatalog:Record<string,EditorConfig>={
     collection("community_onboarding_items","Intake en ontwikkeling","intake","person_id","title item_type completed due_date notes"),
     collection("community_assignments","Inzet","dossiers","person_id","project_id event_id role_name status starts_at notes"),documents("community_person"),
   ],"community_person"),
-  social:config("social_posts","Social post","/app/social","manageOrganization","title post_type platform status scheduled_at copy notes hashtags call_to_action content_id campaign_id event_id partner_id planning_url publication_url canva_url",commonTabs,[
-    collection("social_post_variants","Platformvarianten","planning","social_post_id","platform status scheduled_at copy publication_url"),
+  social:config("social_posts","Social post","/app/social","manageOrganization","title post_type status scheduled_at notes content_id campaign_id event_id partner_id planning_url canva_url",socialTabs,[
+    collection("social_post_variants","Kanalen","kanalen","social_post_id",`platform status scheduled_at copy image_url publication_url notes ${socialStatFields.join(" ")} stats_measured_at`),
   ],"social_post"),
   content:config("content_items","Content","/app/content","manageContent","title description content_type status priority project_id campaign_id partner_id primary_channel channels deadline publication_at drive_url canva_url publication_url approval_status",commonTabs,[],"content"),
   meeting:config("meetings","Vergadering","/app/vergaderingen","manageOrganization","title meeting_type status meeting_at ends_at attendees notes decisions action_points minutes_url",commonTabs,[
@@ -89,7 +92,7 @@ export const dossierEditorCatalog:Record<string,EditorConfig>={
 };
 
 // Reviewed business fields omitted from the first screen prototype.
-for(const [kind,extra] of Object.entries({task:"content_id",event:"project_id partner_id drive_url",campaign:"owner_id",partner:"contact_name last_contact",community:"owner_id phone birth_date started_on stopped_on role_description avatar_url",social:"owner_id bundle_kind",content:"owner_id",product:"product_family",newsletter:"template_variant preheader hero_image_url hero_image_alt"}))dossierEditorCatalog[kind].fields.push(...fields(extra));
+for(const [kind,extra] of Object.entries({task:"content_id",event:"project_id partner_id drive_url",campaign:"owner_id",partner:"contact_name last_contact",community:"owner_id phone birth_date started_on stopped_on role_description avatar_url",social:"owner_id",content:"owner_id",product:"product_family",newsletter:"template_variant preheader hero_image_url hero_image_alt"}))dossierEditorCatalog[kind].fields.push(...fields(extra));
 for(const cfg of Object.values(dossierEditorCatalog))for(const def of [cfg,...cfg.collections])def.fields=def.fields.filter(name=>!['approval_status','paid_at','payment_reference'].includes(name));
 dossierEditorCatalog.newsletter.capability="manageOrganization";
 

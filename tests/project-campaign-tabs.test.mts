@@ -10,6 +10,8 @@ import * as tabs from "../src/lib/contact-dossier-tabs.ts";
 import * as format from "../src/lib/format.ts";
 import * as outcomes from "../src/lib/project-outcomes.ts";
 import {hasPermission} from "../src/lib/permissions.ts";
+import * as socialPostChannels from "../src/lib/social-post-channels.ts";
+import * as eventSocialPosts from "../src/lib/event-social-posts.ts";
 import {toPersonPickerOptions} from "../src/lib/person-picker.ts";
 
 const id="11111111-1111-4111-8111-111111111111";
@@ -22,6 +24,7 @@ test("Campagne-opleveringen en publicaties renderen afzonderlijk met behoud van 
   const dependencies:Record<string,unknown>={
     "./markdown-field":{MarkdownContent:({children}:React.PropsWithChildren)=>React.createElement("div",null,children),MarkdownField:()=>null},"@/components/partner-contacts-panel":{},"@/lib/format":format,
     "@/app/app/operations/relation-actions":new Proxy({},{get:()=>()=>null}),
+    "@/lib/social-post-channels":socialPostChannels,"@/lib/event-social-posts":eventSocialPosts,
     "next/link":{default:({children,...props}:React.PropsWithChildren<Record<string,unknown>>)=>React.createElement("a",props,children)},
   };
   const Component=load("src/components/operational-sections.tsx",dependencies).CampaignSections as React.ComponentType<Record<string,unknown>>;

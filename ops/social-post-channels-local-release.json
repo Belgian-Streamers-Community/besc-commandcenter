@@ -1,0 +1,20 @@
+{
+  "work_item": "stap3-B2-social-post-channel-fiche",
+  "base_commit": "fcd8b2a7218a5a5cf893526390143d1d17d11818",
+  "date": "2026-11-25",
+  "migrations": [
+    { "file": "20261125210000_social_post_channel_fiche.sql", "sha256_lf": "6f847d86ac88c3d279714adae145867e69162198c2f89486136d952cb1c99d77" },
+    { "file": "20261125210100_social_channels_editor_catalog.sql", "sha256_lf": "de7a34077dc3cdb1e425da58982b2efd0da54e28c4d7d42a4fb3f264e3789ea0" }
+  ],
+  "new_private_tables": 0,
+  "new_columns": ["public.social_post_variants.image_url", "public.social_post_variants.stat_* (10)", "public.social_post_variants.stats_measured_at"],
+  "changed_constraints": ["social_post_variants_platform_check (adds Google Business)", "social_posts_platform_check (adds Google Business)"],
+  "changed_functions": ["private.guard_social_review_variant (result fields no longer reset approval)", "public.save_dossier_bundle (regenerated editor catalog)"],
+  "runtime_default": "on",
+  "switch": null,
+  "last_verified_cloud_history": 162,
+  "expected_history_after_separate_apply": 164,
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "historical_rows_backfilled": false
+}
