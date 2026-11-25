@@ -8,6 +8,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as metrics from "../src/lib/campaign-metrics.ts";
 import * as management from "../src/lib/management-report.ts";
+import * as eventSocialPosts from "../src/lib/event-social-posts.ts";
 
 const require = createRequire(import.meta.url);
 const campaigns = [
@@ -22,7 +23,7 @@ function fixture(role = "admin", campaignRows = campaigns) {
     const call = { table, filters: {} as Record<string, unknown> }; calls.push(call);
     const result = () => ({ data: table === "campaigns" ? campaignRows : table === "portal_access" ? [{ id: "access", access_type: "sponsor", partners: { name: "TESTFIXTURE" } }] : [], error: null });
     const query: Record<string, unknown> = {};
-    for (const method of ["select", "is", "order", "not", "gte", "lt", "neq"]) query[method] = () => query;
+    for (const method of ["select", "is", "order", "not", "gte", "lt", "neq", "limit"]) query[method] = () => query;
     query.eq = (key: string, value: unknown) => { call.filters[key] = value; return query; };
     query.maybeSingle = async () => ({ data: table === "partners" ? { name: "TESTFIXTURE", status: "active", partner_type: "sponsor" } : { title: "TESTFIXTURE" }, error: null });
     query.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve);
@@ -30,7 +31,7 @@ function fixture(role = "admin", campaignRows = campaigns) {
   };
   const supabase = { from, auth: { getUser: async () => ({ data: { user: { id: "fixture-user" } } }) }, rpc: async () => ({ data: { partner: { name: "TESTFIXTURE" }, campaigns: campaignRows, deliverables: [], kpis: [] }, error: null }) };
   const overrides: Record<string, unknown> = {
-    "@/lib/campaign-metrics": metrics, "@/lib/management-report": management,
+    "@/lib/campaign-metrics": metrics, "@/lib/management-report": management, "@/lib/event-social-posts": eventSocialPosts,
     "@/lib/auth-context": { requireActiveMembership: async () => ({ supabase, membership: { organization_id: "fixture-org", role } }) },
     "@/lib/supabase/server": { createClient: async () => supabase },
     "@/lib/reporting-scope": { isActiveSponsor: () => true },

@@ -14,6 +14,7 @@ import { CalendarSync, ExternalLink, FilePlus2, FolderInput, FolderPlus, Link2 }
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { EmailCommunicationPanel } from "@/components/email-communication-panel";
+import { EventSocialPostsPanel } from "@/components/event-social-posts-panel";
 import { RecordLifecyclePanel } from "@/components/record-lifecycle-panel";
 import { RecordConnectionsPanel } from "@/components/record-connections-panel";
 import { eventStatuses, eventTypes } from "@/components/event-form";
@@ -244,7 +245,7 @@ export default async function Event({
         </section>
         </>}
         {activeTab === "communicatie" && <>
-        <EventDiscordPanel eventId={id} eventTitle={e.title} offset={Math.max(0,Math.min(10000,Number.isSafeInteger(Number(q.aanmeldingen))?Number(q.aanmeldingen):0))}/><EmailCommunicationPanel entityType="event" entityId={id}/>
+        <EventDiscordPanel eventId={id} eventTitle={e.title} offset={Math.max(0,Math.min(10000,Number.isSafeInteger(Number(q.aanmeldingen))?Number(q.aanmeldingen):0))}/><EventSocialPostsPanel eventId={id}/><EmailCommunicationPanel entityType="event" entityId={id}/>
         </>}
       </div>
     </AppShell>
