@@ -13,7 +13,7 @@
     },
     {
       "path": "src/lib/dossier-editor-catalog.ts",
-      "sha256": "5acd298d3c85525cbf66143abbd0d82cf546fb80060d365111ae50e89e6a6500"
+      "sha256": "2b67faeb334908ecba53639d02840d789060f640a07598ad07c4afaa3aa06793"
     },
     {
       "path": "src/lib/social-connectors.ts",
@@ -60,5 +60,15 @@
   ],
   "masterplan_extraction_sha256": "9633f180572e0d913a8cc55c9c41faf20a03a7fe4b35caf444a097f63ecbcf5b",
   "phase_mapping": "Ecosysteemfasering F0–F6 uit de toetsing van 20 oktober; niet de afzonderlijke socialroadmap 0–8 uit hoofdstuk19.8.",
-  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF; no other normalization"
+  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF; no other normalization",
+  "reviewed_baseline_updates": [
+    {
+      "date": "2026-11-25",
+      "path": "src/lib/dossier-editor-catalog.ts",
+      "previous_sha256": "5acd298d3c85525cbf66143abbd0d82cf546fb80060d365111ae50e89e6a6500",
+      "sha256": "2b67faeb334908ecba53639d02840d789060f640a07598ad07c4afaa3aa06793",
+      "change": "Stap 3 B2: alleen de social-postconfiguratie (kanaaltabs, kanaalvelden, statistiekvelden) en import van socialStatFields. Campagne-, content- en KPI-configuratie ongewijzigd; F3-acceptatiegevallen niet geraakt.",
+      "f3_cases_affected": false
+    }
+  ]
 }
