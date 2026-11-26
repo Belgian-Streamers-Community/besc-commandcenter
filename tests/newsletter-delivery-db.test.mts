@@ -118,6 +118,7 @@ test("persoonlijke afmeldlink schrijft precies die ontvanger uit; onbekend token
     await assert.rejects(f.db.query(`select public.newsletter_delivery_server($1,$2,$3,'summary','{}')`, [org, f.news, admin]), /permission denied/);
     await f.db.exec(`reset role`);
     const rows = (await f.db.query<{ email: string; status: string }>(`select email,status from public.mailing_subscribers order by email`)).rows;
-    assert.deepEqual(rows.map((x) => `${x.email}:${x.status}`), ["drie@example.invalid:subscribed", "een@example.invalid:" + (r.delivery.email === "een@example.invalid" ? "unsubscribed" : "subscribed"), "twee@example.invalid:" + (r.delivery.email === "twee@example.invalid" ? "unsubscribed" : "subscribed")]);
+    // Welke ontvanger eerst geclaimd wordt, hangt af van willekeurige id's: verwacht precies die ene afgemeld.
+    assert.deepEqual(rows.map((x) => `${x.email}:${x.status}`), ["drie@example.invalid", "een@example.invalid", "twee@example.invalid"].map((email) => `${email}:${email === r.delivery.email ? "unsubscribed" : "subscribed"}`));
   } finally { await f.db.close(); }
 });
