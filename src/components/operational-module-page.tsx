@@ -23,8 +23,8 @@ type Row = {
 function channelLabel(row: Row) {
   const variants = row.social_post_variants ?? [];
   return variants.length
-    ? `${variants.length} kanalen`
-    : String(row.platform ?? "Nog geen kanalen");
+    ? variants.map((variant) => variant.platform).join(", ")
+    : "Nog geen kanalen";
 }
 
 function secondaryValue(module: OperationalModule, row: Row) {

@@ -59,3 +59,12 @@
 .asset-repair-action { display:inline-flex; align-items:center; padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--theme-control); color:var(--ink); font-size:11px; font-weight:700; text-decoration:none; }
 .asset-repair-action:focus-visible { outline:2px solid var(--besc-red); outline-offset:3px; }
 @media(max-width:600px) { .asset-planning article { align-items:start; flex-direction:column; gap:7px; } }
+
+/* Social post: kanaalkeuze, kanaaltabbladen en statistieken (B2). */
+.social-channel-options{display:flex;flex-wrap:wrap;gap:8px 18px;border:0;padding:0;margin:8px 0 0}
+.social-copy-field{display:grid;gap:6px}
+.social-copy-field textarea{width:100%;min-height:180px;resize:vertical;font:inherit;line-height:1.5}
+.social-copy-field small{color:var(--muted)}
+.social-channel-links{display:flex;gap:16px;margin:4px 0 0}
+.social-stats-panel details{margin-top:10px}
+.social-stats-panel summary{cursor:pointer;font-weight:600}

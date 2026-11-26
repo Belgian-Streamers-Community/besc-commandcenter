@@ -576,3 +576,12 @@
 .agent-workflows details{margin-block:.75rem}.agent-workflows summary{cursor:pointer;font-weight:600}
 .agent-preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:24rem;overflow:auto;padding:.75rem;font-size:.85rem;background:var(--muted)}
 .agent-request,.agent-job li{white-space:pre-wrap;overflow-wrap:anywhere}.agent-job li{margin-block:.75rem}
+
+/* Social post: overzicht per kanaal (B2). */
+.social-channel-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.social-channel-overview article{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px}
+.social-channel-overview header{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.social-channel-overview header span{font-size:10px;color:var(--muted)}
+.social-copy-preview{white-space:pre-wrap;font-size:12px;margin:0;max-height:220px;overflow:auto}
+.social-channel-overview .social-channel-links{display:flex;gap:14px;font-size:11px;margin:0}
+.social-channel-overview .social-channel-links span{color:var(--muted)}
