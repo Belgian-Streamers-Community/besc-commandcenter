@@ -1,0 +1,27 @@
+{
+  "work_item": "stap3-social-history-import",
+  "base_commit": "a7db06413c9aa8dd03b627ca94d1963d21ba3046",
+  "date": "2026-11-26",
+  "migration": {
+    "file": "20261126190000_social_history_import.sql",
+    "sha256_lf": "63c62e166584460b9fa488e71e0e47fbc278d53cad5d6da17e03f5d7d0261d81"
+  },
+  "new_private_tables": 0,
+  "new_columns": [
+    "public.social_posts.import_ref",
+    "public.social_posts.imported_at"
+  ],
+  "changed_functions": [
+    "private.guard_social_review_source (import-uitzondering, import_ref onveranderbaar)",
+    "private.guard_social_review_variant (import-uitzondering)"
+  ],
+  "new_functions": [
+    "private.social_history_import",
+    "public.social_history_import (alleen service_role)"
+  ],
+  "last_verified_cloud_history": 164,
+  "expected_history_after_separate_apply": 165,
+  "cloud_apply_authorized": false,
+  "server_deploy_authorized": false,
+  "historical_rows_backfilled": false
+}
