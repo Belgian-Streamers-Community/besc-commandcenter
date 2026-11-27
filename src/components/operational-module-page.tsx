@@ -47,9 +47,12 @@ function secondaryValue(module: OperationalModule, row: Row) {
 export async function OperationalModulePage({
   module,
   searchParams,
+  headerLinks = [],
 }: {
   module: OperationalModule;
   searchParams: Promise<Record<string, string | undefined>>;
+  /** Extra koppelingen naast de hoofdknop in de paginakop (bv. Historiek importeren). */
+  headerLinks?: { href: string; label: string }[];
 }) {
   const params = await searchParams;
   const unifiedEditor = await dossierEditorGate({module,query:params});
@@ -61,10 +64,10 @@ export async function OperationalModulePage({
   const type = Object.hasOwn(config.types, params.type ?? "") ? params.type! : "";
   const mine = params.van_mij === "1";
   const openOnly = params.weergave === "open";
-  const sort = ["newest", "oldest", "title", "date"].includes(params.sorteren ?? "")
+  const sort = ["newest", "oldest", "title", "date", "date_desc"].includes(params.sorteren ?? "")
     ? params.sorteren!
     : module === "social"
-      ? "date"
+      ? "date_desc"
       : "newest";
   const page = Math.max(1, Number.parseInt(params.pagina ?? "1", 10) || 1);
   const { supabase, membership, user } = await requireActiveMembership();
@@ -76,7 +79,7 @@ export async function OperationalModulePage({
   const orderColumn =
     sort === "title"
       ? config.titleColumn
-      : sort === "date" && config.dateColumn
+      : (sort === "date" || sort === "date_desc") && config.dateColumn
         ? config.dateColumn
         : "created_at";
   const ascending = sort === "oldest" || sort === "title" || sort === "date";
@@ -149,10 +152,19 @@ export async function OperationalModulePage({
           <p>{config.eyebrow}</p>
           <h1>{config.label}</h1>
         </div>
-        {canManage && (
-          <Link className="primary" href="?nieuw=1">
-            Nieuwe {config.singular}
-          </Link>
+        {(canManage || headerLinks.length > 0) && (
+          <div className="module-top-actions">
+            {headerLinks.map((link) => (
+              <Link className="row-action" href={link.href} key={link.href}>
+                {link.label}
+              </Link>
+            ))}
+            {canManage && (
+              <Link className="primary" href="?nieuw=1">
+                Nieuwe {config.singular}
+              </Link>
+            )}
+          </div>
         )}
       </header>
       <div className="module-body">
@@ -216,6 +228,7 @@ export async function OperationalModulePage({
                 <option value="oldest">Oudste eerst</option>
                 <option value="title">Naam A–Z</option>
                 {config.dateColumn && <option value="date">Eerstvolgende datum</option>}
+                {config.dateColumn && <option value="date_desc">Recentste datum eerst</option>}
               </select>
             </label>
             <label className={`mine-filter ${mine ? "active" : ""}`}>
