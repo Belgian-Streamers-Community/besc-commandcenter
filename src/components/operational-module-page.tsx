@@ -64,10 +64,10 @@ export async function OperationalModulePage({
   const type = Object.hasOwn(config.types, params.type ?? "") ? params.type! : "";
   const mine = params.van_mij === "1";
   const openOnly = params.weergave === "open";
-  const sort = ["newest", "oldest", "title", "date"].includes(params.sorteren ?? "")
+  const sort = ["newest", "oldest", "title", "date", "date_desc"].includes(params.sorteren ?? "")
     ? params.sorteren!
     : module === "social"
-      ? "date"
+      ? "date_desc"
       : "newest";
   const page = Math.max(1, Number.parseInt(params.pagina ?? "1", 10) || 1);
   const { supabase, membership, user } = await requireActiveMembership();
@@ -79,7 +79,7 @@ export async function OperationalModulePage({
   const orderColumn =
     sort === "title"
       ? config.titleColumn
-      : sort === "date" && config.dateColumn
+      : (sort === "date" || sort === "date_desc") && config.dateColumn
         ? config.dateColumn
         : "created_at";
   const ascending = sort === "oldest" || sort === "title" || sort === "date";
@@ -228,6 +228,7 @@ export async function OperationalModulePage({
                 <option value="oldest">Oudste eerst</option>
                 <option value="title">Naam A–Z</option>
                 {config.dateColumn && <option value="date">Eerstvolgende datum</option>}
+                {config.dateColumn && <option value="date_desc">Recentste datum eerst</option>}
               </select>
             </label>
             <label className={`mine-filter ${mine ? "active" : ""}`}>

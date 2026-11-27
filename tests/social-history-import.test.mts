@@ -42,3 +42,11 @@ test("socialkalender en kanaalkaarten volgen het thema (leesbaar in donkere modu
   assert.doesNotMatch(css, /\.social-calendar>a\{background:#fff/);
   assert.match(readFileSync("src/components/operational-module-page.tsx", "utf8"), /headerLinks\.map\(\(link\) =>/);
 });
+
+test("Social planning toont standaard de recentste datum eerst", () => {
+  const page = readFileSync("src/components/operational-module-page.tsx", "utf8");
+  assert.match(page, /module === "social"\s*\? "date_desc"/);
+  assert.match(page, /\(sort === "date" \|\| sort === "date_desc"\) && config\.dateColumn/);
+  assert.match(page, /const ascending = sort === "oldest" \|\| sort === "title" \|\| sort === "date";/, "date_desc sorteert aflopend");
+  assert.match(page, /<option value="date_desc">Recentste datum eerst<\/option>/);
+});
