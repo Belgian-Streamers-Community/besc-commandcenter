@@ -47,9 +47,12 @@ function secondaryValue(module: OperationalModule, row: Row) {
 export async function OperationalModulePage({
   module,
   searchParams,
+  headerLinks = [],
 }: {
   module: OperationalModule;
   searchParams: Promise<Record<string, string | undefined>>;
+  /** Extra koppelingen naast de hoofdknop in de paginakop (bv. Historiek importeren). */
+  headerLinks?: { href: string; label: string }[];
 }) {
   const params = await searchParams;
   const unifiedEditor = await dossierEditorGate({module,query:params});
@@ -149,10 +152,19 @@ export async function OperationalModulePage({
           <p>{config.eyebrow}</p>
           <h1>{config.label}</h1>
         </div>
-        {canManage && (
-          <Link className="primary" href="?nieuw=1">
-            Nieuwe {config.singular}
-          </Link>
+        {(canManage || headerLinks.length > 0) && (
+          <div className="module-top-actions">
+            {headerLinks.map((link) => (
+              <Link className="row-action" href={link.href} key={link.href}>
+                {link.label}
+              </Link>
+            ))}
+            {canManage && (
+              <Link className="primary" href="?nieuw=1">
+                Nieuwe {config.singular}
+              </Link>
+            )}
+          </div>
         )}
       </header>
       <div className="module-body">

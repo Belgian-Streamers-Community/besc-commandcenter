@@ -30,5 +30,15 @@ test("importpagina en actie zijn alleen voor admin/bestuur en gebruiken de serve
   for (const source of [page, action]) assert.match(source, /membership\.role !== "admin" && membership\.role !== "board"/);
   assert.match(action, /createAdminClient\(\)\.rpc\("social_history_import", \{ p_org: membership\.organization_id, p_actor: user\.id, p_posts: check\.file\.posts \}\)/);
   assert.match(action, /file\.size > SOCIAL_IMPORT_MAX_BYTES/);
-  assert.match(readFileSync("src/app/app/social/page.tsx", "utf8"), /href="\/app\/social\/importeren"/);
+  const social = readFileSync("src/app/app/social/page.tsx", "utf8");
+  assert.match(social, /href:'\/app\/social\/importeren',label:'Historiek importeren'/);
+  assert.match(social, /<OperationalModulePage module="social" searchParams=\{searchParams\} headerLinks=\{headerLinks\}\/>/);
+  assert.doesNotMatch(social, /<nav/, "extra koppelingen staan in de paginakop, niet los boven de app");
+});
+
+test("socialkalender en kanaalkaarten volgen het thema (leesbaar in donkere modus)", () => {
+  const css = readFileSync("src/app/globals.css", "utf8");
+  assert.match(css, /\.social-calendar>a\{background:var\(--theme-surface,#fff\)/);
+  assert.doesNotMatch(css, /\.social-calendar>a\{background:#fff/);
+  assert.match(readFileSync("src/components/operational-module-page.tsx", "utf8"), /headerLinks\.map\(\(link\) =>/);
 });
